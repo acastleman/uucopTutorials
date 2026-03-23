@@ -1,0 +1,24 @@
+Package: uucopTutorials
+Title: UUCOP Tutorial Infrastructure
+Version: 0.1.0
+Authors@R:
+    person("Andrew", "Castleman", email = "acastleman@uu.edu", role = c("aut", "cre"))
+Description: Shared infrastructure for UUCOP learnr tutorials. Provides session
+    logging, question event tracking, section navigation tracking, student feedback
+    forms, deployment helpers, and Google Sheets setup functions. Designed so that
+    faculty never need to see or modify infrastructure code.
+License: MIT + file LICENSE
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
+Imports:
+    googlesheets4,
+    blastula,
+    shiny,
+    htmltools,
+    rsconnect
+Suggests:
+    learnr,
+    kableExtra,
+    sortable,
+    devtools

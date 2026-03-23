@@ -1,0 +1,23 @@
+{
+  "skill_name": "gs4-setup",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "I'm building a new learnr tutorial for PHM 704 Pharmacokinetics and need to set up Google Sheets tracking for session logging and question events. Where do I start?",
+      "expected_output": "Complete walkthrough: create sheet, rename sessions tab, share with service account, run setup_tracking_sheets(), wire SHEET_ID into deploy.R, add to Analytics Dashboard SHEET_IDS and SHEETS, redeploy dashboard.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "I already created the Google Sheet for the NSC Labs and renamed Sheet1 to sessions. What do I do next?",
+      "expected_output": "Picks up mid-workflow: share with service account (with instructions on finding client_email), run setup_tracking_sheets(), update SHEET_ID in deploy.R, wire into Analytics Dashboard, redeploy.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "The NSC Labs tutorials are deployed and writing to the tracking sheet fine, but the data isn't showing up in the analytics dashboard. What am I missing?",
+      "expected_output": "Dashboard-wiring focused: add entry to SHEET_IDS in Analytics-Dashboard/deploy.R, add entry to SHEETS in Analytics-Dashboard/app.R with correct env var key and label, redeploy dashboard.",
+      "files": []
+    }
+  ]
+}

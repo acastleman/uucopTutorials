@@ -1,0 +1,23 @@
+{
+  "skill_name": "invite",
+  "evals": [
+    {
+      "id": 0,
+      "prompt": "I just deployed the antidiabetics Part 1 tutorial for the first time. I want to invite the P1 class.",
+      "expected_output": "Pauses to confirm app is set to private before proceeding. After confirmation, runs invite_students() with sendEmail=FALSE using ClassOf2029.csv, drafts an invite email for approval, then sends via blastula BCC after approval.",
+      "files": []
+    },
+    {
+      "id": 1,
+      "prompt": "Who currently has access to NSCLab1, NSCLab2, and NSCLab3?",
+      "expected_output": "Sources NSC Labs deploy.R and calls show_lab_users(labs = 1:3) to list current authorized users.",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "The semester is over. Remove the Class of 2028 from both antidiabetics tutorials.",
+      "expected_output": "Confirms with user before acting. Sources PBDA1/deploy.R and runs remove_students() with ClassOf2028.csv for both part1 and part2.",
+      "files": []
+    }
+  ]
+}
