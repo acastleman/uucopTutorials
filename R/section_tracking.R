@@ -32,14 +32,18 @@ $(document).ready(function () {
 #' (fired by [section_tracking_js()]) and logs each section entry to the
 #' `section_events` tab of the configured Google Sheet.
 #'
+#' **Important:** Pass `input` explicitly when calling from a learnr server chunk.
+#' The default `parent.frame()` resolution is unreliable in learnr's execution
+#' context. Example: `section_tracking_server(TUTORIAL_ID, input = input)`.
+#'
 #' @param app_id The app/tutorial identifier string.
 #' @param session The Shiny session object.
-#' @param input The Shiny input object.
+#' @param input The Shiny input object. Must be passed explicitly in learnr.
 #'
 #' @return Invisible `NULL`.
 #' @export
 section_tracking_server <- function(app_id, session = shiny::getDefaultReactiveDomain(),
-                                    input = parent.frame()$input) {
+                                    input) {
   session_user <- if (!is.null(session$user) && nzchar(session$user)) {
     session$user
   } else {

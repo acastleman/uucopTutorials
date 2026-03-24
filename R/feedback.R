@@ -57,20 +57,25 @@ feedback_form_ui <- function(
 #' Handles the submit button, sends email via blastula, and renders status.
 #' Call in a `context="server"` chunk.
 #'
+#' **Important:** Pass `input` and `output` explicitly when calling from a learnr
+#' server chunk. The default `parent.frame()` resolution is unreliable in learnr's
+#' execution context. Example:
+#' `feedback_form_server(TUTORIAL_ID, "Title", input = input, output = output)`.
+#'
 #' @param app_id The app/tutorial identifier string.
 #' @param tutorial_title Human-readable tutorial title for the email subject.
 #' @param to Instructor email address. Defaults to `"acastleman@uu.edu"`.
 #' @param session The Shiny session object.
-#' @param input The Shiny input object.
-#' @param output The Shiny output object.
+#' @param input The Shiny input object. Must be passed explicitly in learnr.
+#' @param output The Shiny output object. Must be passed explicitly in learnr.
 #'
 #' @return Invisible `NULL`.
 #' @export
 feedback_form_server <- function(app_id, tutorial_title,
                                  to = "acastleman@uu.edu",
                                  session = shiny::getDefaultReactiveDomain(),
-                                 input = parent.frame()$input,
-                                 output = parent.frame()$output) {
+                                 input,
+                                 output) {
   output$feedback_status <- shiny::renderUI(NULL)
 
   shiny::observeEvent(input$submit_feedback, {
