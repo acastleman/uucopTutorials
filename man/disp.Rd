@@ -2,7 +2,7 @@
 % Please edit documentation in R/lab_helpers.R
 \name{disp}
 \alias{disp}
-\title{Format a number for display, returning "\u2014" for missing values}
+\title{Format a number for display, returning an em dash for missing values}
 \usage{
 disp(x, d = 3)
 }
@@ -15,5 +15,5 @@ disp(x, d = 3)
 Character string.
 }
 \description{
-Format a number for display, returning "\u2014" for missing values
+Format a number for display, returning an em dash for missing values
 }

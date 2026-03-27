@@ -51,7 +51,7 @@ xacc <- function(m, expected) {
   if (is.na(m)) NA_real_ else round(m / expected * 100, 2)
 }
 
-#' Format a number for display, returning "\u2014" for missing values
+#' Format a number for display, returning an em dash for missing values
 #'
 #' @param x Value to format.
 #' @param d Number of decimal places. Defaults to 3.
