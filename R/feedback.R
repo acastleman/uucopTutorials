@@ -120,45 +120,132 @@ feedback_form_server <- function(app_id, tutorial_title,
       '</div>'
     )
 
-    fb_email <- blastula::compose_email(body = blastula::md(body_html))
+    fb_result <- smtp_send_html(
+      html_body = body_html,
+      to        = to,
+      subject   = sprintf("%s Feedback \u2014 %s \u2014 %s",
+                          tutorial_title, category, format(Sys.time(), "%Y-%m-%d")),
+      cc        = student_email
+    )
 
-    fb_result <- tryCatch({
-      blastula::smtp_send(
-        email       = fb_email,
-        to          = to,
-        from        = Sys.getenv("SMTP_USER"),
-        cc          = student_email,
-        subject     = sprintf("%s Feedback \u2014 %s \u2014 %s",
-                              tutorial_title, category,
-                              format(Sys.time(), "%Y-%m-%d")),
-        credentials = blastula::creds_envvar(
-          user        = Sys.getenv("SMTP_USER"),
-          pass_envvar = "SMTP_PASS",
-          host        = "smtp.gmail.com",
-          port        = 465,
-          use_ssl     = TRUE
-        )
+    output$feedback_status <- shiny::renderUI(
+      render_send_status(
+        success     = identical(fb_result, "success"),
+        success_msg = "\u2713 Feedback sent \u2014 thank you!",
+        error_detail = if (identical(fb_result, "success")) "" else fb_result,
+        fail_prefix  = "Feedback could not be sent \u2014 please email the instructor directly."
       )
-      "success"
-    }, error = function(e) conditionMessage(e))
+    )
+  })
 
-    if (identical(fb_result, "success")) {
-      output$feedback_status <- shiny::renderUI(
-        shiny::tags$div(
-          style = "background:#d4edda;border:1px solid #c3e6cb;padding:12px 15px;border-radius:5px;margin-top:12px;",
-          shiny::tags$p(style = "color:#155724;margin:0;", "\u2713 Feedback sent \u2014 thank you!")
+  invisible(NULL)
+}
+
+#' Question form UI for learnr tutorials (freeform, no category/section)
+#'
+#' A simplified submission form for sending a freeform question to the
+#' instructor. Unlike [feedback_form_ui()], there is no category or section
+#' dropdown. Use this in PC2 and PBDA1 tutorials where the student asks a
+#' direct question rather than filing structured feedback.
+#'
+#' @param label Label for the text area. Defaults to `"Your question:"`.
+#' @param placeholder Placeholder text. Defaults to a generic example.
+#' @param button_label Label for the submit button.
+#'
+#' @return A [shiny::tagList()] of UI elements.
+#' @export
+question_form_ui <- function(
+    label        = "Your question:",
+    placeholder  = "e.g. 'I don\u2019t understand why pH affects solubility here.'",
+    button_label = "Send Question"
+) {
+  shiny::tagList(
+    shiny::textAreaInput(
+      "student_question",
+      label,
+      rows        = 4,
+      placeholder = placeholder,
+      width       = "100%"
+    ),
+    shiny::actionButton(
+      "submit_question",
+      button_label,
+      class = "btn-default",
+      style = "margin-top:6px;"
+    ),
+    shiny::uiOutput("question_status")
+  )
+}
+
+#' Question form server logic for learnr tutorials
+#'
+#' Handles the submit button for [question_form_ui()], sends the question via
+#' email, and renders a status message. Call in a `context="server"` chunk.
+#'
+#' **Important:** Pass `input` and `output` explicitly — `parent.frame()`
+#' resolution is unreliable in learnr's execution context.
+#'
+#' @param app_id The app/tutorial identifier string.
+#' @param tutorial_title Human-readable tutorial title for the email subject.
+#' @param to Instructor email address. Defaults to `"acastleman@uu.edu"`.
+#' @param session The Shiny session object.
+#' @param input The Shiny input object. Must be passed explicitly in learnr.
+#' @param output The Shiny output object. Must be passed explicitly in learnr.
+#'
+#' @return Invisible `NULL`.
+#' @export
+question_form_server <- function(app_id, tutorial_title,
+                                  to      = "acastleman@uu.edu",
+                                  session = shiny::getDefaultReactiveDomain(),
+                                  input,
+                                  output) {
+  output$question_status <- shiny::renderUI(NULL)
+
+  shiny::observeEvent(input$submit_question, {
+    text <- trimws(input$student_question)
+
+    if (nchar(text) == 0) {
+      output$question_status <- shiny::renderUI(
+        shiny::tags$p(
+          style = "color:#721c24; margin-top:8px;",
+          "Please type your question before sending."
         )
       )
-    } else {
-      output$feedback_status <- shiny::renderUI(
-        shiny::tags$div(
-          style = "background:#f8d7da;border:1px solid #f5c6cb;padding:12px 15px;border-radius:5px;margin-top:12px;",
-          shiny::tags$p(style = "color:#721c24;margin:0;",
-                        paste("Feedback could not be sent \u2014 please email the instructor directly.",
-                              fb_result))
-        )
-      )
+      return()
     }
+
+    student_id    <- if (!is.null(session$user) && nzchar(session$user)) session$user else "unknown"
+    student_email <- derive_student_email(student_id)
+
+    body_html <- paste0(
+      '<div style="font-family:Arial,Helvetica,sans-serif;max-width:680px;color:#222;">',
+      '<h2 style="color:#003366;border-bottom:2px solid #003366;padding-bottom:6px;">',
+      htmltools::htmlEscape(tutorial_title), ' \u2014 Student Question</h2>',
+      '<p><strong>Student:</strong> ', htmltools::htmlEscape(student_id), '</p>',
+      '<p><strong>Submitted:</strong> ', format(Sys.time(), "%Y-%m-%d %H:%M:%S"), '</p>',
+      '<p><strong>Question:</strong></p>',
+      '<blockquote style="border-left:3px solid #003366;padding:8px 12px;margin:8px 0;background:#f9f9f9;">',
+      htmltools::htmlEscape(text),
+      '</blockquote>',
+      '</div>'
+    )
+
+    q_result <- smtp_send_html(
+      html_body = body_html,
+      to        = to,
+      subject   = sprintf("%s \u2014 Student Question \u2014 %s \u2014 %s",
+                          tutorial_title, student_id, format(Sys.time(), "%Y-%m-%d")),
+      cc        = student_email
+    )
+
+    output$question_status <- shiny::renderUI(
+      render_send_status(
+        success      = identical(q_result, "success"),
+        success_msg  = "\u2713 Question sent \u2014 thank you!",
+        error_detail = if (identical(q_result, "success")) "" else q_result,
+        fail_prefix  = "Could not send \u2014 please email the instructor directly."
+      )
+    )
   })
 
   invisible(NULL)

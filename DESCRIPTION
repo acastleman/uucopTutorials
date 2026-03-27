@@ -1,6 +1,6 @@
 Package: uucopTutorials
 Title: UUCOP Tutorial Infrastructure
-Version: 0.1.0
+Version: 0.2.0
 Authors@R:
     person("Andrew", "Castleman", email = "acastleman@uu.edu", role = c("aut", "cre"))
 Description: Shared infrastructure for UUCOP learnr tutorials. Provides session
