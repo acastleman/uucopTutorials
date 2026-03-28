@@ -72,7 +72,7 @@ render_send_status <- function(success,
 #' @param cc Character vector of CC addresses. Defaults to `character(0)`.
 #'
 #' @return `"success"` if sent, or the error message string if sending failed.
-#' @keywords internal
+#' @export
 smtp_send_html <- function(html_body, to, subject, cc = character(0)) {
   email_obj <- blastula::compose_email(body = blastula::md(html_body))
   tryCatch({

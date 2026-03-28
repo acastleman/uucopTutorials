@@ -22,4 +22,3 @@ smtp_send_html(html_body, to, subject, cc = character(0))
 Internal wrapper around \code{\link[blastula:smtp_send]{blastula::smtp_send()}}. Reads \code{SMTP_USER} and
 \code{SMTP_PASS} from the environment. Always uses Gmail on port 465 with SSL.
 }
-\keyword{internal}
