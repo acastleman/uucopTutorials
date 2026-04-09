@@ -1,15 +1,28 @@
+#' Standard local root for UUCOP working environment
+#'
+#' Returns `"C:/uucop"` on Windows and `"~/uucop"` (expanded) on macOS/Linux.
+#' Used as the default `local_root` in [setup_environment()] and as the
+#' credential fallback location in [setup_deploy()].
+#'
+#' @return Character string — absolute path to the local root.
+#' @export
+uucop_local_root <- function() {
+  if (.Platform$OS.type == "windows") "C:/uucop" else path.expand("~/uucop")
+}
+
 #' Set up a local UUCOP working environment
 #'
-#' Creates the standard `C:/uucop/` directory structure, copies credentials
-#' from a shared drive location, configures the rsconnect account, writes SMTP
-#' credentials to `~/.Renviron`, and optionally installs Claude Code skills
-#' globally. Intended for Tier 2+ onboarding — run once per machine.
+#' Creates the standard local working directory, copies credentials from a
+#' shared location, configures the rsconnect account, writes SMTP credentials
+#' to `~/.Renviron`, and optionally installs Claude Code skills globally.
+#' Intended for Tier 2+ onboarding — run once per machine.
 #'
 #' @param shared_drive_path Path to the shared drive folder containing the
 #'   credentials files (`gs4-service-account.json`, `rsconnect.dcf`,
 #'   `smtp-credentials.txt`).
 #' @param local_root Root of the local working directory. Defaults to
-#'   `"C:/uucop"`.
+#'   `"C:/uucop"` on Windows and `"~/uucop"` on macOS/Linux via
+#'   [uucop_local_root()].
 #' @param install_skills_global Logical. If `TRUE` (default), installs bundled
 #'   Claude Code skills to `~/.claude/skills/` so they are available globally.
 #'
@@ -25,7 +38,7 @@
 #'
 #' **Directory structure created under `local_root`:**
 #' \preformatted{
-#' C:/uucop/
+#' uucop/               (C:/uucop on Windows; ~/uucop on macOS)
 #'   .secrets/    <- credentials copied here
 #'   courses/     <- clone course repos here
 #'   hub/         <- clone uucop-hub here
@@ -38,7 +51,7 @@
 #' @return Invisible path to `local_root`.
 #' @export
 setup_environment <- function(shared_drive_path,
-                              local_root          = "C:/uucop",
+                              local_root            = uucop_local_root(),
                               install_skills_global = TRUE) {
 
   shared_drive_path <- normalizePath(shared_drive_path, mustWork = FALSE)

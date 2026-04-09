@@ -6,7 +6,7 @@
 \usage{
 setup_environment(
   shared_drive_path,
-  local_root = "C:/uucop",
+  local_root = uucop_local_root(),
   install_skills_global = TRUE
 )
 }
@@ -16,7 +16,8 @@ credentials files (\code{gs4-service-account.json}, \code{rsconnect.dcf},
 \code{smtp-credentials.txt}).}
 
 \item{local_root}{Root of the local working directory. Defaults to
-\code{"C:/uucop"}.}
+\code{"C:/uucop"} on Windows and \code{"~/uucop"} on macOS/Linux via
+\code{\link[=uucop_local_root]{uucop_local_root()}}.}
 
 \item{install_skills_global}{Logical. If \code{TRUE} (default), installs bundled
 Claude Code skills to \verb{~/.claude/skills/} so they are available globally.}
@@ -25,10 +26,10 @@ Claude Code skills to \verb{~/.claude/skills/} so they are available globally.}
 Invisible path to \code{local_root}.
 }
 \description{
-Creates the standard \verb{C:/uucop/} directory structure, copies credentials
-from a shared drive location, configures the rsconnect account, writes SMTP
-credentials to \verb{~/.Renviron}, and optionally installs Claude Code skills
-globally. Intended for Tier 2+ onboarding — run once per machine.
+Creates the standard local working directory, copies credentials from a
+shared location, configures the rsconnect account, writes SMTP credentials
+to \verb{~/.Renviron}, and optionally installs Claude Code skills globally.
+Intended for Tier 2+ onboarding — run once per machine.
 }
 \details{
 \strong{Expected files in \code{shared_drive_path}:}
@@ -42,7 +43,7 @@ globally. Intended for Tier 2+ onboarding — run once per machine.
 
 \strong{Directory structure created under \code{local_root}:}
 \preformatted{
-C:/uucop/
+uucop/               (C:/uucop on Windows; ~/uucop on macOS)
   .secrets/    <- credentials copied here
   courses/     <- clone course repos here
   hub/         <- clone uucop-hub here
