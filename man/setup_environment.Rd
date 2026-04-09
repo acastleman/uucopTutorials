@@ -5,19 +5,14 @@
 \title{Set up a local UUCOP working environment}
 \usage{
 setup_environment(
-  shared_drive_path,
   local_root = uucop_local_root(),
   install_skills_global = TRUE
 )
 }
 \arguments{
-\item{shared_drive_path}{Path to the shared drive folder containing the
-credentials files (\code{gs4-service-account.json}, \code{rsconnect.dcf},
-\code{smtp-credentials.txt}).}
-
 \item{local_root}{Root of the local working directory. Defaults to
 \code{"C:/uucop"} on Windows and \code{"~/uucop"} on macOS/Linux via
-\code{\link[=uucop_local_root]{uucop_local_root()}}.}
+\code{\link[=uucop_local_root]{uucop_local_root()}}. Should already contain a \verb{.secrets/} subfolder.}
 
 \item{install_skills_global}{Logical. If \code{TRUE} (default), installs bundled
 Claude Code skills to \verb{~/.claude/skills/} so they are available globally.}
@@ -26,25 +21,26 @@ Claude Code skills to \verb{~/.claude/skills/} so they are available globally.}
 Invisible path to \code{local_root}.
 }
 \description{
-Creates the standard local working directory, copies credentials from a
-shared location, configures the rsconnect account, writes SMTP credentials
-to \verb{~/.Renviron}, and optionally installs Claude Code skills globally.
-Intended for Tier 2+ onboarding — run once per machine.
+Reads credentials from \verb{<local_root>/.secrets/}, configures the rsconnect
+account, writes SMTP credentials to \verb{~/.Renviron}, installs required
+packages, and optionally installs Claude Code skills globally. Intended for
+Tier 2+ onboarding — run once per machine.
 }
 \details{
-\strong{Expected files in \code{shared_drive_path}:}
+\strong{Before running:} copy the shared \code{secrets} folder into your local root
+(Windows: \verb{C:/uucop/}; macOS: \verb{~/uucop/}) and rename it \code{.secrets}.
+
+\strong{Expected files in \verb{.secrets/}:}
 \describe{
 \item{\code{gs4-service-account.json}}{Google service account key for Sheets logging.}
-\item{\code{rsconnect.dcf}}{shinyapps.io credentials in DCF format: fields
-\code{name}, \code{token}, \code{secret}.}
-\item{\code{smtp-credentials.txt}}{SMTP credentials, one per line:
-\code{SMTP_USER=...} and \code{SMTP_PASS=...}.}
+\item{\code{rsconnect.dcf}}{shinyapps.io credentials — fields: \code{name}, \code{token}, \code{secret}.}
+\item{\code{smtp-credentials.txt}}{One line each: \code{SMTP_USER=...} and \code{SMTP_PASS=...}.}
 }
 
-\strong{Directory structure created under \code{local_root}:}
+\strong{Directory structure expected under \code{local_root}:}
 \preformatted{
 uucop/               (C:/uucop on Windows; ~/uucop on macOS)
-  .secrets/    <- credentials copied here
+  .secrets/    <- copy and rename the shared 'secrets' folder here
   courses/     <- clone course repos here
   hub/         <- clone uucop-hub here
   package/     <- clone uucopTutorials here

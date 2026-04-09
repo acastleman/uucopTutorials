@@ -12,34 +12,26 @@ uucop_local_root <- function() {
 
 #' Set up a local UUCOP working environment
 #'
-#' Creates the standard local working directory, copies credentials from a
-#' shared location, configures the rsconnect account, writes SMTP credentials
-#' to `~/.Renviron`, and optionally installs Claude Code skills globally.
-#' Intended for Tier 2+ onboarding — run once per machine.
-#'
-#' @param shared_drive_path Path to the shared drive folder containing the
-#'   credentials files (`gs4-service-account.json`, `rsconnect.dcf`,
-#'   `smtp-credentials.txt`).
-#' @param local_root Root of the local working directory. Defaults to
-#'   `"C:/uucop"` on Windows and `"~/uucop"` on macOS/Linux via
-#'   [uucop_local_root()].
-#' @param install_skills_global Logical. If `TRUE` (default), installs bundled
-#'   Claude Code skills to `~/.claude/skills/` so they are available globally.
+#' Reads credentials from `<local_root>/.secrets/`, configures the rsconnect
+#' account, writes SMTP credentials to `~/.Renviron`, installs required
+#' packages, and optionally installs Claude Code skills globally. Intended for
+#' Tier 2+ onboarding — run once per machine.
 #'
 #' @details
-#' **Expected files in `shared_drive_path`:**
+#' **Before running:** copy the shared `secrets` folder into your local root
+#' (Windows: `C:/uucop/`; macOS: `~/uucop/`) and rename it `.secrets`.
+#'
+#' **Expected files in `.secrets/`:**
 #' \describe{
 #'   \item{`gs4-service-account.json`}{Google service account key for Sheets logging.}
-#'   \item{`rsconnect.dcf`}{shinyapps.io credentials in DCF format: fields
-#'     `name`, `token`, `secret`.}
-#'   \item{`smtp-credentials.txt`}{SMTP credentials, one per line:
-#'     `SMTP_USER=...` and `SMTP_PASS=...`.}
+#'   \item{`rsconnect.dcf`}{shinyapps.io credentials — fields: `name`, `token`, `secret`.}
+#'   \item{`smtp-credentials.txt`}{One line each: `SMTP_USER=...` and `SMTP_PASS=...`.}
 #' }
 #'
-#' **Directory structure created under `local_root`:**
+#' **Directory structure expected under `local_root`:**
 #' \preformatted{
 #' uucop/               (C:/uucop on Windows; ~/uucop on macOS)
-#'   .secrets/    <- credentials copied here
+#'   .secrets/    <- copy and rename the shared 'secrets' folder here
 #'   courses/     <- clone course repos here
 #'   hub/         <- clone uucop-hub here
 #'   package/     <- clone uucopTutorials here
@@ -48,16 +40,20 @@ uucop_local_root <- function() {
 #' After running, restart R to activate SMTP credentials written to
 #' `~/.Renviron`.
 #'
+#' @param local_root Root of the local working directory. Defaults to
+#'   `"C:/uucop"` on Windows and `"~/uucop"` on macOS/Linux via
+#'   [uucop_local_root()]. Should already contain a `.secrets/` subfolder.
+#' @param install_skills_global Logical. If `TRUE` (default), installs bundled
+#'   Claude Code skills to `~/.claude/skills/` so they are available globally.
+#'
 #' @return Invisible path to `local_root`.
 #' @export
-setup_environment <- function(shared_drive_path,
-                              local_root            = uucop_local_root(),
+setup_environment <- function(local_root            = uucop_local_root(),
                               install_skills_global = TRUE) {
 
-  shared_drive_path <- normalizePath(shared_drive_path, mustWork = FALSE)
-  local_root        <- normalizePath(local_root,        mustWork = FALSE)
+  local_root <- normalizePath(local_root, mustWork = FALSE)
 
-  # ── 1. Create directory structure ──────────────────────────────────────────
+  # ── 1. Create any missing subdirectories ───────────────────────────────────
   dirs <- c(
     local_root,
     file.path(local_root, ".secrets"),
@@ -66,27 +62,12 @@ setup_environment <- function(shared_drive_path,
     file.path(local_root, "package")
   )
   for (d in dirs) dir.create(d, showWarnings = FALSE, recursive = TRUE)
-  message("Directory structure created at: ", local_root)
+  message("Local root: ", local_root)
 
-  # ── 2. Copy credentials from shared drive ──────────────────────────────────
-  secrets_dst <- file.path(local_root, ".secrets")
-  cred_files  <- c(
-    "gs4-service-account.json",
-    "rsconnect.dcf",
-    "smtp-credentials.txt"
-  )
-  for (f in cred_files) {
-    src <- file.path(shared_drive_path, f)
-    if (file.exists(src)) {
-      file.copy(src, file.path(secrets_dst, f), overwrite = TRUE)
-      message("  Copied: ", f)
-    } else {
-      message("  MISSING: ", f, " (not found in shared drive — skipping)")
-    }
-  }
+  secrets_dir <- file.path(local_root, ".secrets")
 
-  # ── 3. Configure rsconnect account ─────────────────────────────────────────
-  dcf_path <- file.path(secrets_dst, "rsconnect.dcf")
+  # ── 2. Configure rsconnect account ─────────────────────────────────────────
+  dcf_path <- file.path(secrets_dir, "rsconnect.dcf")
   if (file.exists(dcf_path)) {
     creds <- tryCatch(read.dcf(dcf_path)[1L, ], error = function(e) NULL)
     if (!is.null(creds) && all(c("name", "token", "secret") %in% names(creds))) {
@@ -100,11 +81,12 @@ setup_environment <- function(shared_drive_path,
       message("  rsconnect.dcf found but malformed — check name/token/secret fields")
     }
   } else {
-    message("  SKIP rsconnect setup — rsconnect.dcf not found")
+    message("  SKIP rsconnect — rsconnect.dcf not found in ", secrets_dir)
+    message("    Copy and rename the shared 'secrets' folder to .secrets/ first.")
   }
 
-  # ── 4. Write SMTP credentials to ~/.Renviron ───────────────────────────────
-  smtp_path <- file.path(secrets_dst, "smtp-credentials.txt")
+  # ── 3. Write SMTP credentials to ~/.Renviron ───────────────────────────────
+  smtp_path <- file.path(secrets_dir, "smtp-credentials.txt")
   if (file.exists(smtp_path)) {
     smtp_lines <- readLines(smtp_path, warn = FALSE)
     smtp_lines <- smtp_lines[nzchar(trimws(smtp_lines)) & !grepl("^#", smtp_lines)]
@@ -114,7 +96,40 @@ setup_environment <- function(shared_drive_path,
     writeLines(c(existing, smtp_lines), renviron_path)
     message("  SMTP credentials written to ~/.Renviron")
   } else {
-    message("  SKIP SMTP setup — smtp-credentials.txt not found")
+    message("  SKIP SMTP — smtp-credentials.txt not found in ", secrets_dir)
+  }
+
+  # ── 4. Install required packages ───────────────────────────────────────────
+  # All packages found across tutorials and projects in this system.
+  # uucopTutorials itself is excluded (already installed to run this function).
+  cran_pkgs <- c(
+    "AzureAuth", "AzureGraph", "DT", "Microsoft365R",
+    "RSelenium", "animation", "base64enc", "blastula", "bslib",
+    "checkr", "data.table", "dplyr", "flexdashboard",
+    "gargle", "gganimate", "ggplot2", "ggpubr",
+    "googlesheets4", "gradethis", "grid", "gridExtra",
+    "htmltools", "kableExtra", "knitr", "learnr",
+    "lubridate", "magick", "magrittr", "mrgsolve",
+    "officer", "pander", "plotly", "plyr",
+    "png", "qwraps2", "r3dmol", "rdrop2",
+    "readr", "readxl", "rmarkdown", "rsconnect",
+    "rvest", "scales", "shiny", "shinyWidgets",
+    "shinyTime", "shinyjs", "shinythemes", "sortable",
+    "stringi", "stringr", "tidyr", "tidyverse",
+    "toastui", "xlsx"
+  )
+
+  missing_pkgs <- cran_pkgs[!vapply(cran_pkgs, requireNamespace, logical(1L), quietly = TRUE)]
+
+  if (length(missing_pkgs) == 0L) {
+    message("  All packages already installed.")
+  } else {
+    message("  Installing ", length(missing_pkgs), " missing package(s): ",
+            paste(missing_pkgs, collapse = ", "))
+    tryCatch(
+      install.packages(missing_pkgs, dependencies = TRUE),
+      error = function(e) message("  Package install error: ", e$message)
+    )
   }
 
   # ── 5. Install Claude Code skills globally ─────────────────────────────────
@@ -137,15 +152,13 @@ setup_environment <- function(shared_drive_path,
     file.path(courses_dir, "pk"), "\n",
     "       git clone https://github.com/acastleman/NonsterileCompounding.git ",
     file.path(courses_dir, "nonsterile"), "\n",
-    "       (repeat for other courses — see uucop-hub README)\n",
+    "       (see uucop-hub README for full list)\n",
     "  3. Clone the package:\n",
     "       git clone https://github.com/acastleman/uucopTutorials.git ",
     file.path(pkg_dir, "uucopTutorials"), "\n",
     "  4. Clone the hub:\n",
     "       git clone https://github.com/acastleman/uucop-hub.git ",
-    file.path(hub_dir, "uucop-hub"), "\n",
-    "  5. Install the package:\n",
-    "       devtools::install_github('acastleman/uucopTutorials')\n"
+    file.path(hub_dir, "uucop-hub"), "\n"
   )
 
   invisible(local_root)
