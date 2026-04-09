@@ -53,6 +53,14 @@ setup_environment <- function(local_root            = uucop_local_root(),
 
   local_root <- normalizePath(local_root, mustWork = FALSE)
 
+  # ── 0. Rename secrets → .secrets if needed ────────────────────────────────
+  secrets_visible <- file.path(local_root, "secrets")
+  secrets_hidden  <- file.path(local_root, ".secrets")
+  if (!dir.exists(secrets_hidden) && dir.exists(secrets_visible)) {
+    file.rename(secrets_visible, secrets_hidden)
+    message("  Renamed secrets/ to .secrets/")
+  }
+
   # ── 1. Create any missing subdirectories ───────────────────────────────────
   dirs <- c(
     local_root,
