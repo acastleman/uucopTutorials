@@ -29,7 +29,9 @@ setup_deploy <- function(account    = "uucop",
                          smtp_pass  = NULL) {
 
   if (is.null(secrets_dir)) {
-    secrets_dir <- normalizePath(file.path(repo_root, "..", ".secrets"), mustWork = FALSE)
+    rel_path    <- normalizePath(file.path(repo_root, "..", ".secrets"), mustWork = FALSE)
+    global_path <- normalizePath("C:/uucop/.secrets", mustWork = FALSE)
+    secrets_dir <- if (dir.exists(rel_path)) rel_path else global_path
   }
   gs4_json <- file.path(secrets_dir, "gs4-service-account.json")
 
