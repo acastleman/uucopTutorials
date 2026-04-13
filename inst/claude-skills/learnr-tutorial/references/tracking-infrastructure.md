@@ -458,7 +458,7 @@ fluidRow(
 
 ## Confidence Calibration UI
 
-Place one `radioButtons` at the end of each content section (before the `---` separator). Update the ID suffix and question text for each section.
+Place one `radioButtons` **after the content exposition but before the first question** in each content section. This ordering is intentional: if placed after the questions, students base their rating on the retrieval they just practiced rather than their genuine pre-assessment. Update the ID suffix and question text for each section.
 
 ```r
 ```{r confidence-s1, echo=FALSE}

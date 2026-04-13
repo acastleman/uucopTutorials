@@ -15,14 +15,14 @@ Processes unread student feedback for one or more learnr tutorials. Can be invok
 
 ## Step 1 — Find pending feedback
 
-Scan all known tutorial directories for files in `feedback/inbox/`:
+The authoritative list of registered tutorials is `uucop-hub/feedback/collect_feedback.py` — read its `TUTORIAL_MAP` to get all inbox paths. Derive the inbox paths from the values in that dict (each value is a `feedback/` directory; append `inbox/` to get the inbox).
 
-```
-PBDA1/antidiabetics_part1/feedback/inbox/
-PBDA1/antidiabetics_part2/feedback/inbox/
+```python
+# Example entries in TUTORIAL_MAP — read the file for the current list
+"PHRM 726 Anti-Diabetics Part 1": RMD_ROOT / "courses" / "PHRM726_PBDA1" / "antidiabetics_part1" / "feedback",
 ```
 
-Add new tutorials to this list as they are created. If the user specifies a particular tutorial, scope to that one only.
+If the user specifies a particular tutorial, scope to that one only. If `collect_feedback.py` cannot be found, fall back to scanning the courses/ directory for `feedback/inbox/` directories.
 
 If no `.txt` files exist in any `inbox/`, report "No pending feedback" and stop.
 
@@ -135,15 +135,20 @@ If no feedback was processed, write a one-line report: `No pending feedback on Y
 
 ## Step 9 — Commit
 
-After all tutorials are processed and the report is written, create a git commit from the PBDA1 repo root:
+After all tutorials are processed:
 
+**Commit tutorial changes** — for each git repo where Rmd files were modified, commit from that repo's root:
 ```
 Tutorial revision: N feedback items processed (YYYY-MM-DD)
 ```
+Fill the `git_commit` column in each `feedback_log.csv` with the resulting short hash.
 
-Then fill the `git_commit` column in each `feedback_log.csv` with the resulting short hash.
+**Commit the daily report** — the report lives in `uucop-hub/feedback/reports/`. Commit it to uucop-hub:
+```
+Feedback report: YYYY-MM-DD
+```
 
-If changes span multiple git repos, commit each repo separately. The daily report does not need to be committed (it lives outside the git repo).
+If changes span multiple course repos, commit each separately before committing the report to uucop-hub.
 
 ---
 

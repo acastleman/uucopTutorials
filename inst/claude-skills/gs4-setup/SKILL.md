@@ -6,6 +6,12 @@ allowed-tools: Read, Edit, Bash, Glob
 
 # New Google Sheet Setup
 
+## Prerequisites
+
+This skill requires a Google service account JSON at `.secrets/gs4-service-account.json` (repo root). This file is provided by Dr. Castleman during onboarding — do not proceed without it. The `client_email` inside it is what you share with each new Google Sheet.
+
+---
+
 This workflow has two parts: browser steps that only the user can perform, and code steps that Claude executes once the sheet ID is in hand.
 
 ---

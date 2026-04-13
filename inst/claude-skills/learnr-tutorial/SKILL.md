@@ -642,6 +642,11 @@ The prefix numbers reflect sequence within the course. Ask the user what number 
 
 When scaffolding a new tutorial from scratch, work through these in order:
 
+**Before starting:** pull the course repo to make sure you have the latest:
+```bash
+git -C <course-repo-root> pull --ff-only
+```
+
 1. **Create directory** — `NN_tutorial-name/` (zero-padded number prefix for ordering)
 2. **Copy YAML header and setup chunks** from `references/technical-setup.md`
 3. **Add to `TUTORIAL_CONFIG`** in `deploy.R` (name + file path)
@@ -669,7 +674,13 @@ When scaffolding a new tutorial from scratch, work through these in order:
       | Feedback log        | `ProjectDir/tutorial-dir/feedback_log.csv` |
       | Git repo root       | `ProjectDir/` |
       ```
-    - Add the tutorial's inbox path to `collect_feedback.py` TUTORIAL_MAP and to `run_process_feedback.bat`
+    - **Register in uucop-hub** — open `uucop-hub/feedback/collect_feedback.py` and add an entry to `TUTORIAL_MAP`:
+      ```python
+      "Course Name Tutorial Name": RMD_ROOT / "courses" / "COURSE_DIR" / "tutorial-dir" / "feedback",
+      ```
+      The key must match (case-insensitive) the tutorial name in the feedback email subject — i.e., everything between `[EXTERNAL] - ` and ` Feedback —`.
+    - Also add the inbox path to the inbox directory list in `uucop-hub/feedback/run_process_feedback.bat` (the long `--message` string passed to Claude).
+    - Use the `git-sync` skill to commit and push both the course repo and uucop-hub changes. Commit course repo first, then uucop-hub.
 11. **Draft primer** — sustained analogy, parameter table, diagnostic self-check, predictions
 12. **Draft warm-up** (if tutorial 2+ in series) — spaced retrieval from prior tutorials
 13. **Draft content sections** — lecture content + active elaboration layers
@@ -679,6 +690,7 @@ When scaffolding a new tutorial from scratch, work through these in order:
 17. **Draft what's next** — preview, retention forecast, spacing recommendation
 18. **Create downloadable primer PDF** — place in `www/primer.pdf`
 19. **Label all questions** with `q_concept_bloom_number` convention
+20. **Commit and push** the completed tutorial — use the `git-sync` skill.
 
 ---
 

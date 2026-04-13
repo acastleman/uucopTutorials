@@ -168,6 +168,33 @@ Inside R code chunks (e.g., in `paste()`, `sprintf()`, feedback strings), `\uXXX
 
 ---
 
+## Lists in R Markdown — Blank Line Required
+
+**Always insert a blank line between any preceding text and the first item of a bullet or numbered list.**
+
+Without the blank line, R Markdown's CommonMark parser treats the list as a continuation of the preceding paragraph and renders the items as plain text inline.
+
+```markdown
+This is correct — blank line before the list:
+
+- Item one
+- Item two
+
+This is wrong — no blank line, items render as plain text:
+- Item one
+- Item two
+```
+
+This applies everywhere in `.Rmd` files: prose paragraphs, bold headings, and content inside `<div>` callout blocks. Lists inside HTML divs are especially prone to this because the `>` or closing tag can look like paragraph context to the parser.
+
+Quick audit before deploy:
+```bash
+grep -n "^- \|^[0-9]\+\." tutorial.Rmd | head -20   # find list lines
+```
+Then check that each one has a blank line immediately above it.
+
+---
+
 ## CSS / Styling
 
 Add inside a ```` ```{r, results='asis'} ```` chunk or as raw HTML:

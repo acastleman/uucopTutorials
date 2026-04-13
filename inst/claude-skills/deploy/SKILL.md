@@ -7,6 +7,18 @@ allowed-tools: Bash, Read, Glob
 
 # Deploy to shinyapps.io
 
+## Prerequisites
+
+Before deploying for the first time, you need three things — all provided by Dr. Castleman during onboarding:
+
+1. **`.secrets/gs4-service-account.json`** at your repo root — the Google service account key for Sheets logging
+2. **SMTP credentials** (`SMTP_USER` / `SMTP_PASS`) — the Gmail App Password for sending student feedback emails
+3. **shinyapps.io account access** — your login for the `uucop` account on shinyapps.io (or your own account if deploying under a different org)
+
+If any of these are missing, `inject_gs4_credentials()` will fail silently and deployed apps will not log sessions. Get these before continuing.
+
+---
+
 All apps deploy to the `uucop` account on `shinyapps.io`. There are two deployment patterns in use — identify which one applies, then follow the steps for that pattern.
 
 ---
