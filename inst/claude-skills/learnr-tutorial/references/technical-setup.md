@@ -141,6 +141,84 @@ question_rank(
 - For free text: put the model answer and common mistakes in both `correct` and `incorrect` — students see whichever branch learnr takes, and both should be equally informative
 - **MCQ distractor quality:** distractors must be plausible (common misconceptions or related-but-wrong reasoning), similar in length and detail to the correct answer, and each one should represent a specific error a student could genuinely make
 
+### v3.1 UX: "Reveal Model Answer" + auto-expand textarea
+
+For tutorials at v3.1+, add the following JS to the IIFE `<script>` block (same block as
+the section-hash listener and `injectHeader()`). Insert **between** the `hashchange` listener
+and `$(document).ready`:
+
+```javascript
+// ─── REVEAL MODEL ANSWER + AUTO-EXPAND TEXTAREA ─────────────────
+var _observedQs = new WeakSet();
+
+function renameBtnsIn(q) {
+  q.querySelectorAll('button').forEach(function(btn) {
+    var t = btn.textContent.trim();
+    if (t === 'Submit Answer' || t === 'Submit') {
+      btn.textContent = 'Reveal Model Answer';
+    }
+  });
+}
+
+// Replace single-line text inputs with auto-sizing textareas so
+// long answers remain fully visible after "Reveal Model Answer".
+function upgradeTextInputs(q) {
+  q.querySelectorAll('input[type="text"]').forEach(function(inp) {
+    if (inp.dataset.taUpgraded) return;
+    inp.dataset.taUpgraded = '1';
+    var ta = document.createElement('textarea');
+    ta.id = inp.id;
+    ta.className = inp.className;
+    ta.value = inp.value || '';
+    ta.placeholder = inp.placeholder || '';
+    ta.disabled = inp.disabled;
+    ta.style.cssText = 'width:100%;box-sizing:border-box;resize:vertical;min-height:72px;overflow:hidden;';
+    function fit() {
+      ta.style.height = 'auto';
+      ta.style.height = (ta.scrollHeight + 2) + 'px';
+    }
+    ta.addEventListener('input', function() {
+      fit();
+      if (window.Shiny) Shiny.setInputValue(ta.id, ta.value);
+    });
+    inp.parentNode.replaceChild(ta, inp);
+    fit();
+    setTimeout(function() {
+      if (window.Shiny && Shiny.unbindAll && Shiny.bindAll) {
+        Shiny.unbindAll(ta.parentNode);
+        Shiny.bindAll(ta.parentNode);
+      }
+    }, 50);
+  });
+}
+
+function attachQuestionObserver(q) {
+  if (_observedQs.has(q)) return;
+  if (!q.querySelector('input[type="text"]')) return;
+  _observedQs.add(q);
+  renameBtnsIn(q);
+  upgradeTextInputs(q);
+  new MutationObserver(function() {
+    renameBtnsIn(q);
+    upgradeTextInputs(q);
+  }).observe(q, { childList: true, subtree: true });
+}
+
+function scanAndAttach() {
+  document.querySelectorAll('.tutorial-question.panel-body')
+    .forEach(attachQuestionObserver);
+}
+
+new MutationObserver(scanAndAttach)
+  .observe(document.body, { childList: true, subtree: true });
+```
+
+**How it works:**
+- `renameBtnsIn` — renames "Submit Answer" / "Submit" → "Reveal Model Answer" in any `question_text()` panel, signaling to students that this is self-assessment, not graded submission.
+- `upgradeTextInputs` — replaces the single-line `<input type="text">` with an auto-sizing `<textarea>` carrying the same `id`. Grows to fit content; `Shiny.setInputValue` + `unbindAll/bindAll` keep learnr's reactive binding intact. `dataset.taUpgraded` flag prevents double-upgrading.
+- `attachQuestionObserver` — fires once per question panel, sets up rename + textarea, attaches a per-question MutationObserver to handle re-renders after submission.
+- Body-level `scanAndAttach` MutationObserver catches question panels as sections are lazily rendered.
+
 ---
 
 ## Unicode Characters in Markdown Body
