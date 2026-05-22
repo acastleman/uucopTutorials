@@ -82,6 +82,16 @@ Dell & Wantuch synthesized the literature into 12 rules grouped under General, S
 
 **11. Parallel options.** All choices should match in verb tense, length, grammatical structure, and level of specificity. A mismatched outlier (the only noun among verbs, the only generic among brand names, the only short one) becomes a logical cue — even when the outlier *is* the correct answer, students will second-guess it. Lack of parallelism almost always traces to insufficient time spent on distractors.
 
+**Drafting procedure to enforce length parity at write-time, not audit-time.** Answer-length bias is the most common form of non-parallelism and it is much easier to prevent than to retrofit. When authoring an item:
+
+1. Write the key first, including any qualifiers needed to make it unambiguously correct.
+2. Decide on a structural template for the choice set — e.g., *bare drug name*, or *drug + dose + route + frequency*, or *one-clause clinical action*. Pick one and commit.
+3. Write each distractor to the same template and to within roughly ±15% of the key's character length.
+4. If a qualifier (dose, monitoring plan, rationale) is needed only on the key to make it defensible, do not put it in the option — move it to the per-answer `message` feedback. The student should not have to read a qualifier to identify the key; the qualifier is for *teaching after they choose*.
+5. Before finalizing, scan the four option strings and ask: if you stripped the drug names and read only the structural skeleton, could you still pick the key? If yes, the template isn't uniform.
+
+This matters because `tutorial-cleanup` Phase B auto-flags items where `correct_length / max_distractor_length > 1.15` and asks for a rewrite. Designing for parity up front avoids the rewrite loop and produces a more honestly discriminating item. The retrospective audit in Section 8 catches what slips through; the drafting procedure here keeps slips rare.
+
 **12. Exactly one correct answer.** This is the single most important rule. The hidden trap is overlapping numeric ranges: choices like `< 160/90`, `< 180/105`, `< 185/110`, `< 200/105` are all technically correct for "TPA can be administered when BP is..." because each is a subset of the largest. Fix by asking for a specific cut-off, by using single values, or by making the ranges mutually exclusive. The distinction between *correct* and *best* answer is legitimate — but the stem must signal which is being asked ("most appropriate," "best initial," "preferred").
 
 ---
@@ -92,8 +102,8 @@ These extend the 12 without duplicating them.
 
 - **Test specifications first.** Each item should reflect a specific blueprint cell (content × cognitive level). For UUCOP tutorials this maps to: which lecture objective × which Bloom level. Avoid trivial content even if it's easy to write items about.
 - **Paraphrase, don't quote.** Use language different from the textbook or lecture slides for novel-material testing. Recall of an exact phrase rewards memorization without comprehension. (See Section 5 — Exam Question Firewall — for a stronger version of this rule.)
-- **Vary the location of the key.** Across a tutorial, the correct answer should appear in each position roughly equally. In learnr, this is handled mechanically by `random_answer_order = TRUE` (see Section 7), which makes ordering moot at runtime — but when authoring, do not write all keys as option B and rely on the shuffle. Authoring habits leak into review.
-- **Order choices logically.** When choices are numbers, dates, or doses, sort them ascending or descending. When they are list lengths, sort by length. This prevents the order itself from being a cue and makes the item easier to scan.
+- **Vary the location of the key.** Across a tutorial, the correct answer should appear in each position roughly equally. For most items, learnr handles this mechanically with `random_answer_order = TRUE` (Section 7), making position moot at runtime — but when authoring, do not write all keys as option B and rely on the shuffle. Authoring habits leak into review. For numeric/dose/date items (next bullet), runtime shuffling is *off* and the author is responsible for varying the key position across items.
+- **Order choices logically when they have inherent order.** When choices are numbers, dates, or doses, sort them ascending or descending. When they are list lengths, sort by length. Inherent ordering prevents the ordering itself from being a cue, makes scanning faster, and surfaces overlapping-range traps (Rule 12) during review. Set `random_answer_order = FALSE` on these items — shuffling numeric choices defeats the ordering and is disorienting to read. Qualitative choices (drug names, mechanisms, conceptual labels) have no inherent order, so `random_answer_order = TRUE` applies.
 - **Independent, non-overlapping choices.** No choice should subsume another (the TPA trap). No choice should be a paraphrase of another.
 - **Homogeneous choices.** All choices should be the same *kind* of thing (all drug names, or all mechanisms, or all doses) — never a mix.
 
@@ -138,11 +148,12 @@ The Dell & Wantuch paper provides three worked flawed/revised pairs covering all
 
 Mechanics (full details in `learnr-tutorial` skill):
 
-- `random_answer_order = TRUE` on every `question()` unless when choices are numbers, dates, or doses, sort them ascending or descending — eliminates position as a cue at runtime
-- `allow_retry = TRUE` — supports retrieval practice (see `learning-science`)
-- `correct = "..."`, `incorrect = "..."` — high-quality feedback; explain *why* the key is right and *why* the chosen distractor is wrong, not just "correct" / "try again"
-- `message = "..."` on `answer()` — per-choice feedback; ideal for naming the specific misconception that distractor represents
-- `random_answer_order` does not absolve authoring of Rule 11 (parallel options) — non-parallel choices remain cues even when shuffled, because they cue *which choice* is the key, not its position
+- `random_answer_order = TRUE` on items whose choices have **no inherent order** — drug names, mechanisms, conceptual labels, patient findings. Shuffling at runtime eliminates position as a cue.
+- `random_answer_order = FALSE` on items whose choices have **inherent numeric, dose, or date order** (Section 4). Keep them sorted ascending; the author is then responsible for varying which position holds the key across the tutorial.
+- `allow_retry = TRUE` — supports retrieval practice (see `learning-science`).
+- `correct = "..."`, `incorrect = "..."` — high-quality feedback; explain *why* the key is right and *why* the chosen distractor is wrong, not just "correct" / "try again".
+- `message = "..."` on `answer()` — per-choice feedback; ideal for naming the specific misconception that distractor represents.
+- `random_answer_order` does not absolve authoring of Rule 11 (parallel options) — non-parallel choices remain cues even when shuffled, because they cue *which choice* is the key, not its position.
 
 When in doubt about learnr mechanics, defer to the `learnr-tutorial` skill. This skill owns the content quality of the question; that skill owns the wiring.
 
@@ -177,7 +188,8 @@ Use this for fast QA passes over existing items. Each row should be answered yes
 - [ ] Logically ordered when ordering makes sense (numeric, alphabetic)
 - [ ] Homogeneous in kind (all drugs, or all mechanisms, etc.)
 - [ ] Key is not conspicuously longer or more qualified
-- [ ] `random_answer_order = TRUE` unless intentionally ordered and `allow_retry = TRUE` set in learnr
+- [ ] `random_answer_order` set correctly: `TRUE` for qualitative choices, `FALSE` for numeric/dose/date choices kept in ascending order
+- [ ] `allow_retry = TRUE` set in learnr
 
 If the review surfaces a fixable mechanical issue (length imbalance, missing `random_answer_order`, etc.), `tutorial-cleanup` can repair it. If the review surfaces a conceptual issue (weak distractor, mis-aligned Bloom level, double jeopardy), rewrite the item.
 
