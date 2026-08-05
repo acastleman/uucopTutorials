@@ -44,11 +44,7 @@ $(document).ready(function () {
 #' @export
 section_tracking_server <- function(app_id, session = shiny::getDefaultReactiveDomain(),
                                     input) {
-  session_user <- if (!is.null(session$user) && nzchar(session$user)) {
-    session$user
-  } else {
-    "unknown"
-  }
+  session_user <- uucop_user(session)
 
   shiny::observeEvent(input$learnr_section, {
     sec_data <- input$learnr_section

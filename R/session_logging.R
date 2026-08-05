@@ -43,11 +43,7 @@ log_session <- function(user, app_name, start, duration_min,
 session_tracking_server <- function(app_id, session = shiny::getDefaultReactiveDomain()) {
 
   session_start <- Sys.time()
-  session_user  <- if (!is.null(session$user) && nzchar(session$user)) {
-    session$user
-  } else {
-    "unknown"
-  }
+  session_user  <- uucop_user(session)
 
   session$onSessionEnded(function() {
     duration_min <- as.numeric(difftime(Sys.time(), session_start, units = "mins"))

@@ -93,14 +93,10 @@ feedback_form_server <- function(app_id, tutorial_title,
       return()
     }
 
-    student_id <- if (!is.null(session$user) && nzchar(session$user)) {
-      session$user
-    } else {
-      "Unknown"
-    }
+    student_id <- uucop_user(session)
 
-    student_email <- if (!identical(student_id, "Unknown")) {
-      if (grepl("@", student_id)) student_id else paste0(student_id, "@my.uu.edu")
+    student_email <- if (!identical(student_id, "unknown")) {
+      derive_student_email(student_id)
     } else {
       character(0)
     }
@@ -214,7 +210,7 @@ question_form_server <- function(app_id, tutorial_title,
       return()
     }
 
-    student_id    <- if (!is.null(session$user) && nzchar(session$user)) session$user else "unknown"
+    student_id    <- uucop_user(session)
     student_email <- derive_student_email(student_id)
 
     body_html <- paste0(

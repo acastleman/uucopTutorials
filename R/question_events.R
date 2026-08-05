@@ -36,14 +36,15 @@ setup_question_recorder <- function(sheet_id = Sys.getenv("GS4_SHEET_ID")) {
 
     if (event != "question_submission") return(invisible(NULL))
 
-    # Resolve real user identity
+    # Resolve real user identity. uucop_user() covers session$user
+    # (shinyapps.io / Connect server) and the Connect Cloud session token;
+    # learnr's own user_id resolves to the OS user ('shiny') when deployed,
+    # so it is only a last resort before giving up.
     domain    <- shiny::getDefaultReactiveDomain()
-    real_user <- if (!is.null(domain) && !is.null(domain$user) && nzchar(domain$user)) {
-      domain$user
-    } else if (nzchar(user_id) && !identical(user_id, "shiny")) {
-      user_id
-    } else {
-      "unknown"
+    real_user <- uucop_user(domain)
+    if (identical(real_user, "unknown") &&
+        nzchar(user_id) && !identical(user_id, "shiny")) {
+      real_user <- user_id
     }
 
     # Count attempts per user/question/day

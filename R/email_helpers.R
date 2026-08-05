@@ -17,10 +17,19 @@
 derive_student_email <- function(session_user,
                                   unknown = "unknown",
                                   domain  = "my.uu.edu") {
-  if (identical(session_user, unknown) || !nzchar(session_user)) {
+  if (length(session_user) != 1 || is.na(session_user) ||
+      identical(tolower(session_user), tolower(unknown)) || !nzchar(session_user)) {
     return(character(0))
   }
-  if (grepl("@", session_user)) session_user else paste0(session_user, "@", domain)
+  if (grepl("@", session_user)) return(session_user)
+  # On Posit Connect Cloud the viewer identity is an opaque account GUID, not a
+  # username. Concatenating it with the mail domain would produce a bogus
+  # address, so refuse rather than send to it.
+  if (grepl("^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$",
+            session_user)) {
+    return(character(0))
+  }
+  paste0(session_user, "@", domain)
 }
 
 #' Render a success or failure status box for email submission
