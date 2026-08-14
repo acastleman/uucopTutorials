@@ -59,7 +59,7 @@ setup_question_recorder <- function(sheet_id = Sys.getenv("GS4_SHEET_ID")) {
     assign(key, attempt, envir = .question_attempts)
 
     tryCatch({
-      googlesheets4::sheet_append(
+      uucop_sheet_append(
         sheet_id,
         data.frame(
           user                  = real_user,

@@ -1,6 +1,6 @@
 Package: uucopTutorials
 Title: UUCOP Tutorial Infrastructure
-Version: 0.2.3
+Version: 0.3.0
 Authors@R:
     person("Andrew", "Castleman", email = "acastleman@uu.edu", role = c("aut", "cre"))
 Description: Shared infrastructure for UUCOP learnr tutorials. Provides session
@@ -14,10 +14,15 @@ RoxygenNote: 7.3.1
 Imports:
     jsonlite,
     googlesheets4,
+    gargle,
+    httr,
+    later,
     blastula,
     shiny,
     htmltools,
-    rsconnect
+    rsconnect,
+    stats,
+    utils
 Suggests:
     learnr,
     kableExtra,

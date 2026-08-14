@@ -14,7 +14,7 @@
 log_session <- function(user, app_name, start, duration_min,
                         sheet_id = Sys.getenv("GS4_SHEET_ID")) {
   tryCatch({
-    googlesheets4::sheet_append(
+    uucop_sheet_append(
       sheet_id,
       data.frame(
         user         = if (nzchar(user)) user else "unknown",
@@ -48,6 +48,11 @@ session_tracking_server <- function(app_id, session = shiny::getDefaultReactiveD
   session$onSessionEnded(function() {
     duration_min <- as.numeric(difftime(Sys.time(), session_start, units = "mins"))
     log_session(session_user, app_id, session_start, duration_min)
+    # Drain the process-level buffer so this student's events land even if the
+    # worker goes idle and shuts down before the next timer tick. The queue is
+    # shared, so the first session to end flushes everyone's rows and the rest
+    # find it empty and cost nothing.
+    uucop_flush_events()
   })
 
   invisible(NULL)

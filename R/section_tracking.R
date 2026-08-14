@@ -46,10 +46,28 @@ section_tracking_server <- function(app_id, session = shiny::getDefaultReactiveD
                                     input) {
   session_user <- uucop_user(session)
 
+  # De-duplicate rapid repeats of the same section. Tutorials that carry both
+  # the inline hashchange <script> and the copy in www/uucop-tutorial.js bind
+  # the handler twice, so one navigation fires two identical events a
+  # millisecond apart -- doubling section_events and skewing dwell time. A
+  # student cannot meaningfully re-enter the same section inside the window.
+  last_section <- NULL
+  last_time    <- NULL
+
   shiny::observeEvent(input$learnr_section, {
     sec_data <- input$learnr_section
+
+    now <- Sys.time()
+    if (!is.null(last_section) && identical(last_section, sec_data$section) &&
+        as.numeric(difftime(now, last_time, units = "secs")) <
+          getOption("uucop.section_dedupe_seconds", 2)) {
+      return(invisible(NULL))
+    }
+    last_section <<- sec_data$section
+    last_time    <<- now
+
     tryCatch({
-      googlesheets4::sheet_append(
+      uucop_sheet_append(
         Sys.getenv("GS4_SHEET_ID"),
         data.frame(
           user       = session_user,
