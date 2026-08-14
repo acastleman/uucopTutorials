@@ -60,7 +60,36 @@ uucop_sheet_append <- function(ss, data, sheet) {
 
   .uucop_events$queues[[key]] <- queue
   .uucop_start_flush_timer()
+  .uucop_register_session_flush()
+
+  # Write through immediately for the sessions tab. A session row is produced by
+  # an onSessionEnded handler -- i.e. at the moment the session dies -- and
+  # shinyapps.io suspends a worker once no client is connected, so a later()
+  # tick scheduled after that point never runs and the row would be lost with
+  # the process. Flushing here drains the whole queue, which also rescues the
+  # trailing question/section events from the same session. One extra request
+  # per student per session.
+  if (sheet %in% getOption("uucop.write_through_tabs", "sessions")) {
+    uucop_flush_events()
+  }
+
   invisible(length(rows))
+}
+
+# Flush when the current Shiny session ends. Registered from the first append in
+# each session so it applies to tutorials that carry their own inline
+# log_session/recorder copies as well as those using session_tracking_server().
+.uucop_register_session_flush <- function() {
+  s <- tryCatch(shiny::getDefaultReactiveDomain(), error = function(e) NULL)
+  if (is.null(s) || is.null(s$userData) || is.null(s$onSessionEnded)) {
+    return(invisible(NULL))
+  }
+  if (isTRUE(s$userData$uucop_flush_hooked)) return(invisible(NULL))
+  tryCatch({
+    s$userData$uucop_flush_hooked <- TRUE
+    s$onSessionEnded(function() uucop_flush_events())
+  }, error = function(e) invisible(NULL))
+  invisible(NULL)
 }
 
 #' Flush all buffered tutorial events to Google Sheets
