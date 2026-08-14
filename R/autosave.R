@@ -146,6 +146,7 @@ app_autosave_clear <- function(session = shiny::getDefaultReactiveDomain()) {
   var $         = null;
   var restoring = false;
   var restored  = false;
+  var baseline  = null;    // signature of the form as first rendered
   var timer     = null;
   var $pill     = null;
   var holdUntil = 0;   // keep the restore notice up past the save that follows it
@@ -256,6 +257,16 @@ app_autosave_clear <- function(session = shiny::getDefaultReactiveDomain()) {
     return data;
   }
 
+  function sig(data) {
+    try { return JSON.stringify(data); } catch (e) { return null; }
+  }
+
+  // Snapshot the form as first rendered, so later saves can tell a real edit
+  // from an input that simply carries a default value.
+  function setBaseline() {
+    if (baseline === null) baseline = sig(collect());
+  }
+
   // A date left at its default is not evidence that a student typed anything,
   // so it never counts as content on its own.
   function hasContent(data) {
@@ -305,10 +316,13 @@ app_autosave_clear <- function(session = shiny::getDefaultReactiveDomain()) {
   }
 
   function restore() {
+    // One attempt only, whether or not a draft turned up -- otherwise the
+    // ready() backstop can fire after the first save and re-announce it as a
+    // restore.
     if (restored) return;
+    restored = true;
     var payload = readStore();
     if (!payload || !hasContent(payload.data)) return;
-    restored = true;
 
     restoring = true;
     try {
@@ -330,15 +344,17 @@ app_autosave_clear <- function(session = shiny::getDefaultReactiveDomain()) {
   function save() {
     timer = null;
     var data = collect();
-    // Never trade a good draft for an empty one -- a student who clears the
-    // form still has "Clear draft" if they actually want it gone.
-    if (!hasContent(data)) return;
+    // Write only once the form differs from how it first rendered. Checking for
+    // non-empty values is not enough: an app whose inputs carry defaults (a
+    // preset numericInput, a selected radio) looks "non-empty" untouched, and
+    // an untouched load would then overwrite a real draft with nothing.
+    if (baseline === null ? !hasContent(data) : sig(data) === baseline) return;
     if (!writeStore(data)) return;
     if (new Date().getTime() >= holdUntil) say("Draft saved " + clockTime(new Date()));
   }
 
   function scheduleSave() {
-    if (restoring) return;
+    if (restoring) return;   // our own restore writes -- not the student typing
     if (timer) window.clearTimeout(timer);
     timer = window.setTimeout(save, DELAY);
   }
@@ -355,12 +371,15 @@ app_autosave_clear <- function(session = shiny::getDefaultReactiveDomain()) {
     });
 
     $(document).on("shiny:sessioninitialized", function () {
+      setBaseline();
       window.setTimeout(restore, 0);
     });
 
     // Backstop: if this script booted late and missed sessioninitialized, the
     // restored flag makes the second attempt a no-op.
-    $(document).ready(function () { window.setTimeout(restore, 750); });
+    $(document).ready(function () {
+      window.setTimeout(function () { setBaseline(); restore(); }, 750);
+    });
 
     // Registered last, and guarded, so that a rejected handler can never take
     // the restore wiring above down with it. Shiny requires a handler that
