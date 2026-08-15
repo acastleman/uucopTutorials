@@ -133,13 +133,25 @@ uucop_progress_push <- function(session = shiny::getDefaultReactiveDomain()) {
 
   # `minutes` is deliberately NOT sent to the client. Publishing "12 / 20 min"
   # tells every student the time half of the rule is satisfiable by leaving the
-  # tab open. The completion flag carries the same information for the student
-  # who has genuinely finished, without the recipe.
+  # tab open. `minutesMet` is a bare boolean -- it says no more than the
+  # completion chip already says, and the client needs it to decide whether to
+  # draw that chip against its own (possibly higher) count.
+  #
+  # We send the LABELS, not just their number. Two latencies sit between a
+  # submission and what a fresh page load can read back: the ~20-25s event
+  # buffer, and the per-worker read cache in uucop_read_tabs(). Those caches are
+  # independent -- shinyapps.io spreads reloads across worker processes, each
+  # holding its own snapshot -- so a bare count can go DOWN on reload, which
+  # reads as broken. The client unions these labels into its own stored set, so
+  # its displayed count only ever rises. as.list() keeps a length-1 vector from
+  # serializing as a bare string instead of an array.
   msg <- list(
+    labels     = as.list(st$labels),
     answered   = answered,
     target     = st$min_questions,
     cumulative = isTRUE(st$seeded),
     identified = isTRUE(st$identified),
+    minutesMet = minutes >= st$min_minutes,
     complete   = isTRUE(st$seeded) &&
       answered >= st$min_questions &&
       minutes  >= st$min_minutes
