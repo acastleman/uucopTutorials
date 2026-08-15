@@ -76,6 +76,12 @@ setup_question_recorder <- function(sheet_id = Sys.getenv("GS4_SHEET_ID")) {
         sheet = "question_events"
       )
     }, error = function(e) message("Question event log failed: ", e$message))
+
+    # Live header counter. Deliberately after the append and in its own try():
+    # logging is the job, the counter is decoration, and nothing about drawing
+    # it may be able to cost us a row. A no-op unless uucop_progress_server()
+    # is running in this session.
+    try(uucop_progress_note(domain, data$label), silent = TRUE)
   })
 
   invisible(NULL)
