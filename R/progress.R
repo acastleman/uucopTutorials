@@ -131,6 +131,19 @@ uucop_progress_push <- function(session = shiny::getDefaultReactiveDomain()) {
   elapsed  <- as.numeric(difftime(Sys.time(), st$started, units = "mins"))
   minutes  <- st$seed_minutes + elapsed
 
+  # The CLIENT decides when the time half flips, from the milliseconds we send
+  # it here. This used to be a 30-second `invalidateLater` re-push, which also
+  # kept the websocket busy for the whole life of the session -- so
+  # `application.shiny.timeout.conn` (900 s) never fired, the instance never
+  # went idle, and an abandoned tab billed active hours all night. Measured:
+  # PASS-WK2 billed 12 consecutive hours 2026-08-19 20:00 -> 2026-08-20 07:00
+  # CDT. Zero such overnight runs existed before this timer shipped.
+  # See shinyapps_idle_timeout_TODO.md.
+  #
+  # We send REMAINING MILLISECONDS, not an absolute instant, so client/server
+  # clock skew cannot make the chip flip early or never.
+  remaining_ms <- max(0, (st$min_minutes - minutes) * 60 * 1000)
+
   # `minutes` is deliberately NOT sent to the client. Publishing "12 / 20 min"
   # tells every student the time half of the rule is satisfiable by leaving the
   # tab open. `minutesMet` is a bare boolean -- it says no more than the
@@ -152,6 +165,10 @@ uucop_progress_push <- function(session = shiny::getDefaultReactiveDomain()) {
     cumulative = isTRUE(st$seeded),
     identified = isTRUE(st$identified),
     minutesMet = minutes >= st$min_minutes,
+    # Older per-tutorial copies of www/uucop-tutorial.js ignore this and fall
+    # back to the boolean above, which is correct at push time -- they just do
+    # not flip the chip until the next push. Nothing breaks; keep both.
+    minutesInMs = remaining_ms,
     complete   = isTRUE(st$seeded) &&
       answered >= st$min_questions &&
       minutes  >= st$min_minutes
@@ -248,12 +265,16 @@ uucop_progress_server <- function(app_id,
     uucop_progress_push(session)
   }, once = TRUE)
 
-  # Re-push on a timer so the completion state can appear as minutes accrue.
-  # No API cost -- minutes are computed from the session clock plus the seed.
-  shiny::observe({
-    shiny::invalidateLater(30000, session)
-    uucop_progress_push(session)
-  })
+  # NO recurring timer here. Pushes are event-driven only: once on the client's
+  # `uucop_progress_ready` handshake (above) and once per answered question via
+  # uucop_progress_note(). The time half of the rule flips client-side off the
+  # `minutesInMs` countdown in uucop_progress_push().
+  #
+  # A `shiny::invalidateLater(30000, session)` observe used to live here. It
+  # cost no API calls but generated 120 websocket messages an hour for the
+  # lifetime of every session, which stopped the connection from ever looking
+  # idle and so stopped shinyapps.io from ever reclaiming the instance.
+  # Do not reintroduce a heartbeat here.
 
   invisible(NULL)
 }
