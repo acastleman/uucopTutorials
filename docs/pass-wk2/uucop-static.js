@@ -385,6 +385,117 @@
     showSection(/^t=/.test(initial) ? null : initial, false);
   }
 
+  /* ---- progressive reveal -------------------------------------------- */
+  // learnr's mechanism, observed on the live tutorial and reproduced with its
+  // own classes so tutorial-format.css does all the showing and hiding:
+  //   .section.level3.hide      -> hidden (Bootstrap display:none !important)
+  //   .section.level3.showSkip  -> visible, and its .skip button becomes
+  //                                display:inline-block via `.showSkip .skip`
+  //   .section.level3.done      -> revealed already; gets the checkmark from
+  //                                url(images/exerciseDone.svg)
+  //   .section.level2.hideActions -> Next Topic suppressed until the section
+  //                                is finished
+  // build_static.R bakes the initial state so the first paint is correct; this
+  // only advances it.
+
+  var REVEAL_KEY = "uucop-static-revealed";
+
+  function revealedStore() { return load(REVEAL_KEY + ":" + cfg.tutorial, {}); }
+
+  function saveRevealed(secId, n) {
+    var st = revealedStore();
+    // Never move backwards: a student who has already opened four subsections
+    // should not lose them by revisiting the section.
+    if (!(st[secId] > n)) { st[secId] = n; store(REVEAL_KEY + ":" + cfg.tutorial, st); }
+  }
+
+  function subsections(sec) {
+    return Array.prototype.slice.call(sec.querySelectorAll(':scope > .section.level3'));
+  }
+
+  // Show subsections 0..n-1, park the skip control on n-1, and release the
+  // section's own Next Topic control once everything is out.
+  function applyReveal(sec, n) {
+    var subs = subsections(sec);
+    if (!subs.length) return;
+    n = Math.max(1, Math.min(n, subs.length));
+    subs.forEach(function (s, i) {
+      s.classList.toggle('hide', i >= n);
+      s.classList.toggle('showSkip', i === n - 1 && n < subs.length);
+      s.classList.toggle('done', i < n - 1);
+    });
+    sec.classList.toggle('hideActions', n < subs.length);
+    saveRevealed(sec.id, n);
+  }
+
+  function revealedCount(sec) {
+    var subs = subsections(sec);
+    return subs.filter(function (s) { return !s.classList.contains('hide'); }).length || 1;
+  }
+
+  function wireProgressive() {
+    var stored = revealedStore();
+    sections().forEach(function (sec) {
+      var subs = subsections(sec);
+      if (subs.length < 2) return;
+      // Only sections the converter marked progressive carry hideActions or a
+      // hidden subsection; leave the opted-out ones (data-progressive=FALSE)
+      // exactly as they are.
+      var isProgressive = sec.classList.contains('hideActions') ||
+                          subs.some(function (s) { return s.classList.contains('hide'); });
+      if (!isProgressive) return;
+
+      applyReveal(sec, stored[sec.id] || 1);
+
+      subs.forEach(function (s) {
+        var btn = s.querySelector('.exerciseActions .skip');
+        if (!btn || btn.dataset.uucopWired) return;
+        btn.dataset.uucopWired = '1';
+        btn.addEventListener('click', function () {
+          var next = revealedCount(sec) + 1;
+          applyReveal(sec, next);
+          logEvent("reveal", { label: sec.id, qkind: "subsection", answer: String(next) });
+          var shown = subsections(sec)[next - 1];
+          if (shown) shown.scrollIntoView({ block: 'start', behavior: 'smooth' });
+        });
+      });
+    });
+  }
+
+  /* ---- Start Over ------------------------------------------------------ */
+  // learnr clears server-side progress; here the equivalent is dropping every
+  // key this page owns AND uucop-tutorial.js's own visited store (CFG.storageKey
+  // from #uucop-config), otherwise the rail keeps its checkmarks and the reset
+  // looks half-applied.
+  function wireReset() {
+    var btn = document.querySelector('.topicsFooter .resetButton');
+    if (!btn) return;
+
+    function reset() {
+      if (!global.confirm('Start over? This clears your answers, your place in ' +
+                          'this tutorial, and the questions-answered count on ' +
+                          'this device.')) return;
+      try {
+        var cfgEl = document.getElementById('uucop-config');
+        var storageKey = null;
+        if (cfgEl) {
+          try { storageKey = (JSON.parse(cfgEl.textContent) || {}).storageKey; } catch (e) {}
+        }
+        [seenKey(), REVEAL_KEY + ":" + cfg.tutorial, QUEUE_KEY]
+          .concat(storageKey ? [storageKey] : [])
+          .forEach(function (k) { localStorage.removeItem(k); });
+      } catch (e) { /* storage blocked; the reload still resets the session */ }
+      location.hash = '';
+      location.reload();
+    }
+
+    btn.addEventListener('click', reset);
+    // It is a <span> in learnr's markup, so it needs explicit keyboard support.
+    btn.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); reset(); }
+    });
+  }
+
   /* ---- boot ----------------------------------------------------------- */
 
   function start(options) {
@@ -397,6 +508,8 @@
 
     renderQuestions();
     wireConfidence();
+    wireProgressive();
+    wireReset();
     startNav();
     startClock();
     pushProgress();
