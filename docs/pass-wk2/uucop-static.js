@@ -171,8 +171,10 @@
   }
 
   // Items whose correct and incorrect feedback are identical are
-  // self-assessments, not graded items. The stylesheet labels those
-  // .alert-success / "Self-assessment" rather than "Model answer".
+  // self-assessments, not graded items -- every option is acceptable, so
+  // "Correct" would be a lie. This is the only signal, and it exists in the Rmd
+  // and nowhere in the DOM, which is why CSS alone could never scope the amber
+  // treatment properly. Tagged with .uucop-selfcheck; see uucop-static-layout.css.
   function isSelfAssessment(q) {
     return !!(q.feedback && q.feedback.correct &&
               q.feedback.correct === q.feedback.incorrect);
@@ -191,7 +193,10 @@
     if (q.random_answer_order) shuffle(order);
 
     // learnr's own Bootstrap markup, so uucop-tutorial.css applies untouched.
-    var html = ['<div class="shiny-input-container">',
+    // shiny-input-radiogroup matters: uucop-tutorial.css scopes its "Not quite"
+    // eyebrow with :has(.shiny-input-radiogroup) so that model-answer items keep
+    // "Model answer". Without this class the rule silently misses here.
+    var html = ['<div class="form-group shiny-input-radiogroup shiny-input-container">',
                 '<label class="control-label">', esc(q.prompt), '</label>',
                 '<div class="shiny-options-group">'];
     order.forEach(function (o) {
@@ -239,8 +244,16 @@
       // paints amber and labels "Self-assessment" -- correct for a genuine
       // self-assessment item, wrong for a graded correct answer, which is why
       // uucop-correct carries a green treatment and a "Correct" label instead.
-      var cls = self ? "alert-success"
-                     : (right ? "alert-success uucop-correct" : "alert-danger");
+      // uucop-tutorial.css now paints .alert-success green with a "Correct"
+      // eyebrow, and .alert-danger inside a choice question "Not quite" -- so
+      // graded items need no class of their own here.
+      //
+      // Self-assessment items must NOT ride on either: "Correct" is wrong when
+      // every option is acceptable. This build can tell the difference (the
+      // converter sees identical correct/incorrect feedback in the Rmd) where
+      // CSS alone cannot, so it gets an explicit class. That is the distinction
+      // the original "Self-assessment" style was reaching for.
+      var cls = self ? "uucop-selfcheck" : (right ? "alert-success" : "alert-danger");
       fb = alertEl(cls, right ? (q.feedback && q.feedback.correct) || "Correct."
                               : (q.feedback && q.feedback.incorrect) || "Not quite.");
       host.appendChild(fb);

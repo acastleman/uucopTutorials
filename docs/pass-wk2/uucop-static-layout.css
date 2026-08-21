@@ -114,35 +114,25 @@
 }
 
 /* ── Answer feedback ──────────────────────────────────────────────────────
-   A pre-existing mislabel, fixed here for the static build.
+   Correct/incorrect styling now lives UPSTREAM in uucop-tutorial.css, which was
+   patched 2026-08-21: .alert-success is green with a "Correct" eyebrow, and
+   .alert-danger inside a choice question reads "Not quite" while model-answer
+   items keep "Model answer". Nothing about those belongs here any more.
 
-   learnr uses .alert-success for a CORRECT answer. uucop-tutorial.css
-   repurposed that class as the self-assessment style: amber ground, gold rule,
-   and `::before { content: "Self-assessment" }`. The result in the live Shiny
-   tutorial is that every correct MCQ is labelled "Self-assessment" and nothing
-   reads as correct -- verified against the running tutorial.
-
-   Rather than change the meaning of .alert-success (genuine self-assessment
-   items still want amber), uucop-static.js adds .uucop-correct to graded
-   correct answers only, and that gets the green. Worth fixing upstream in
-   uucop-tutorial.css too, so the Shiny build stops mislabelling.
-
-   Green is a semantic status colour, deliberately outside the crimson palette:
-   correct/incorrect must not be carried by the brand hue. */
-.tutorial-question .alert.uucop-correct {
-  background: #eef7f0 !important;
-  border-left-color: #1f7a44 !important;
-  color: #14512e !important;
+   What CSS still cannot express is a SELF-ASSESSMENT item -- an MCQ where every
+   option is acceptable, so "Correct" would be a lie. The only signal is that its
+   correct and incorrect feedback are identical, which is visible in the Rmd and
+   nowhere in the DOM. uucop-static.js detects it and tags it, so the amber
+   treatment the original stylesheet was reaching for finally lands on the right
+   questions. */
+.tutorial-question .alert.uucop-selfcheck {
+  border-left-color: var(--uu-gold, #b88a3f) !important;
+  background: var(--uu-amber-bg, #fdf6e7) !important;
+  color: var(--uu-amber-ink, #5a4015) !important;
 }
-.tutorial-question .alert.uucop-correct::before {
-  content: "Correct";
-  color: #1f7a44;
-}
-
-/* Incorrect answers inherited the generic "Model answer" eyebrow because
-   nothing styles .alert-danger. Name what it actually is. */
-.tutorial-question .alert.alert-danger::before {
-  content: "Not quite";
+.tutorial-question .alert.uucop-selfcheck::before {
+  content: "Self-assessment";
+  color: var(--uu-amber-ink, #5a4015);
 }
 
 /* Keyboard focus must stay visible -- the rail is primary navigation. */

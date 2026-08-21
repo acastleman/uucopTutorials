@@ -781,10 +781,18 @@ table tbody tr:nth-child(even),
   border-right: 0 !important;
   border-bottom: 0 !important;
 }
+/* learnr marks a CORRECT answer with .alert-success. It is never used for the
+   model-answer (question_text) items: those carry answer(NULL, correct = TRUE),
+   so typed text never matches, learnr marks them incorrect, and they render as
+   .alert-danger with the "Model answer" eyebrow below. This rule therefore only
+   ever fired on a correct MCQ -- where an amber "Self-assessment" badge was
+   exactly wrong. Verified against the running tutorial 2026-08-21.
+   Green is a semantic status colour, deliberately outside the crimson palette:
+   correct/incorrect must not be signalled with the brand hue. */
 .tutorial-question .alert-success {
-  border-left-color: var(--uu-gold) !important;
-  background: var(--uu-amber-bg) !important;
-  color: var(--uu-amber-ink) !important;
+  border-left-color: #1f7a44 !important;
+  background: #eef7f0 !important;
+  color: #14512e !important;
 }
 .tutorial-question .alert::before {
   content: "Model answer";
@@ -798,7 +806,15 @@ table tbody tr:nth-child(even),
   color: var(--uu-crimson);
   margin-bottom: 6px;
 }
-.tutorial-question .alert-success::before { color: var(--uu-amber-ink); content: "Self-assessment"; }
+.tutorial-question .alert-success::before { color: #1f7a44; content: "Correct"; }
+
+/* A wrong MCQ also lands in .alert-danger, where the default "Model answer"
+   eyebrow above reads oddly. Name it for what it is -- but only for choice
+   questions, so the model-answer items keep "Model answer", which is right
+   for them. */
+.tutorial-question:has(.shiny-input-radiogroup) .alert-danger::before {
+  content: "Not quite";
+}
 
 /* The auto-grown textarea (upgraded from text input by the JS) */
 .tutorial-question textarea {
