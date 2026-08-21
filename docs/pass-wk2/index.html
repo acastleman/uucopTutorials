@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- The page is PUBLIC. GitHub Pages has no server-side auth: a public repo's
+     Pages is public, and private-repo Pages is an Enterprise Cloud feature.
+     noindex keeps it out of search results, which is the only privacy on offer. -->
+<meta name="robots" content="noindex, nofollow">
+<title>WK2 Retrieval Practice — Warm-Up (static prototype)</title>
+<link rel="stylesheet" href="uucop-static.css">
+</head>
+<body>
+
+<header class="uucop-header">
+  <div class="uucop-header-inner">
+    <span class="uucop-title">Retrieval Practice <span class="uucop-sub">WK2 &middot; Warm-Up</span></span>
+    <div class="uucop-progress" id="progress" aria-label="Tutorial progress">
+      <span class="uucop-progress-label">Questions</span>
+      <span class="uucop-progress-segs" id="segs"></span>
+      <span class="uucop-progress-count" id="count">&mdash; / 20</span>
+      <span class="uucop-progress-chip" id="chip" hidden></span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <h1>Warm-Up</h1>
+  <p class="uucop-cue"><em>Activate. Target: 10 minutes.</em></p>
+
+  <p>These questions revisit concepts from WK1. No peeking at notes &mdash; the
+  struggle to recall is exactly the point.</p>
+
+  <hr>
+
+  <!-- Questions render here from questions.js. Everything above this point is
+       ordinary HTML: prose, figures, kable tables and SVG widgets all port
+       across unchanged, because none of them ever needed R at runtime. -->
+  <div id="questions"></div>
+
+  <hr>
+
+  <section class="uucop-devpanel">
+    <h2>Event log <span class="uucop-devnote">prototype only &mdash; delete before real use</span></h2>
+    <p class="uucop-devnote">
+      Every row is exactly what would be POSTed to
+      <code>rpc/uucop_log_event</code>. With no Supabase URL configured the
+      engine queues to <code>localStorage</code> and shows the payload here, so
+      the round trip is inspectable without a backend.
+    </p>
+    <div class="uucop-status" id="logstatus"></div>
+    <pre id="log" class="uucop-log"></pre>
+  </section>
+
+</main>
+
+<script src="questions.js"></script>
+<script src="uucop-static.js"></script>
+<script>
+  UUCOP.start({
+    tutorial:     "PASS-WK2-RetrievalPractice",
+    minQuestions: 20,
+    minMinutes:   20,
+    // Leave supabaseUrl null to run fully offline (queues + logs to the panel).
+    // Set both to POST for real:
+    //   supabaseUrl: "https://<project>.supabase.co",
+    //   supabaseAnonKey: "<anon key>",
+    supabaseUrl:     null,
+    supabaseAnonKey: null
+  });
+</script>
+</body>
+</html>

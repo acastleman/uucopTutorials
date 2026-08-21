@@ -1,0 +1,116 @@
+/* uucop-static.css — compact stand-in for www/uucop-tutorial.css (29 KB).
+   The real port should reuse that stylesheet as-is; this exists so the
+   prototype is legible on its own. Light and dark both defined explicitly. */
+
+:root {
+  --bg: #ffffff;
+  --fg: #1c1f23;
+  --muted: #5a6672;
+  --line: #dfe4e9;
+  --card: #f6f8fa;
+  --accent: #0b5d8f;
+  --ok-bg: #e8f5ec; --ok-fg: #14572c; --ok-line: #9ccfae;
+  --no-bg: #fdecec; --no-fg: #7d2020; --no-line: #e3aaaa;
+  --model-bg: #eef3fa; --model-fg: #1d3c5c; --model-line: #a9c3de;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #14171a; --fg: #e6e9ec; --muted: #9aa7b3; --line: #2b3238;
+    --card: #1b1f24; --accent: #6cb6e6;
+    --ok-bg: #16301f; --ok-fg: #a7dcb9; --ok-line: #2f5e3f;
+    --no-bg: #33191a; --no-fg: #e8b0b0; --no-line: #6a3131;
+    --model-bg: #1a2531; --model-fg: #b9d3ec; --model-line: #35506b;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #14171a; --fg: #e6e9ec; --muted: #9aa7b3; --line: #2b3238;
+  --card: #1b1f24; --accent: #6cb6e6;
+  --ok-bg: #16301f; --ok-fg: #a7dcb9; --ok-line: #2f5e3f;
+  --no-bg: #33191a; --no-fg: #e8b0b0; --no-line: #6a3131;
+  --model-bg: #1a2531; --model-fg: #b9d3ec; --model-line: #35506b;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--fg);
+  font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+main { max-width: 46rem; margin: 0 auto; padding: 1.5rem 1.25rem 5rem; }
+h1 { font-size: 1.7rem; margin: 1.5rem 0 .25rem; }
+h2 { font-size: 1.15rem; margin: 2rem 0 .5rem; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 2rem 0; }
+code { background: var(--card); padding: .1em .35em; border-radius: 3px; font-size: .9em; }
+.uucop-cue { color: var(--muted); margin: 0 0 1rem; }
+
+/* header */
+.uucop-header {
+  position: sticky; top: 0; z-index: 10;
+  background: var(--bg); border-bottom: 1px solid var(--line);
+}
+.uucop-header-inner {
+  max-width: 46rem; margin: 0 auto; padding: .6rem 1.25rem;
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+}
+.uucop-title { font-weight: 600; }
+.uucop-sub { color: var(--muted); font-weight: 400; font-size: .85em; }
+.uucop-progress { margin-left: auto; display: flex; align-items: center; gap: .5rem; font-size: .85rem; }
+.uucop-progress-label { color: var(--muted); }
+.uucop-progress-segs { display: inline-flex; gap: 2px; }
+.uucop-progress-segs span {
+  width: 9px; height: 9px; border-radius: 2px;
+  background: var(--line); display: inline-block;
+}
+.uucop-progress-segs span.done { background: var(--accent); }
+.uucop-progress-count { font-variant-numeric: tabular-nums; color: var(--muted); }
+.uucop-progress-chip {
+  background: var(--ok-bg); color: var(--ok-fg);
+  border: 1px solid var(--ok-line); border-radius: 999px; padding: .05rem .5rem;
+}
+.uucop-progress.warn .uucop-progress-count { color: var(--no-fg); font-weight: 600; }
+@media (max-width: 620px) {
+  .uucop-progress-segs { display: none; }
+  .uucop-progress { margin-left: 0; }
+}
+
+/* questions */
+.uucop-q {
+  background: var(--card); border: 1px solid var(--line);
+  border-radius: 8px; padding: 1rem 1.1rem; margin: 1.25rem 0;
+}
+.uucop-stem { margin: 0 0 .85rem; font-weight: 500; }
+.uucop-choices { display: flex; flex-direction: column; gap: .4rem; margin-bottom: .9rem; }
+.uucop-choice {
+  display: flex; gap: .55rem; align-items: flex-start;
+  padding: .45rem .6rem; border: 1px solid transparent; border-radius: 5px;
+  cursor: pointer;
+}
+.uucop-choice:hover { border-color: var(--line); background: var(--bg); }
+.uucop-choice input { margin-top: .3rem; flex: none; }
+.uucop-text {
+  width: 100%; font: inherit; padding: .6rem;
+  background: var(--bg); color: var(--fg);
+  border: 1px solid var(--line); border-radius: 5px; margin-bottom: .9rem;
+}
+.uucop-submit {
+  font: inherit; font-weight: 500; cursor: pointer;
+  background: var(--accent); color: #fff; border: 0;
+  border-radius: 5px; padding: .45rem 1rem;
+}
+.uucop-submit:disabled { opacity: .55; cursor: default; }
+.uucop-feedback {
+  margin-top: .9rem; padding: .7rem .85rem;
+  border-radius: 5px; border: 1px solid var(--line); font-size: .95rem;
+}
+.uucop-feedback.ok    { background: var(--ok-bg);    color: var(--ok-fg);    border-color: var(--ok-line); }
+.uucop-feedback.no    { background: var(--no-bg);    color: var(--no-fg);    border-color: var(--no-line); }
+.uucop-feedback.model { background: var(--model-bg); color: var(--model-fg); border-color: var(--model-line); }
+
+/* dev panel */
+.uucop-devpanel { border: 1px dashed var(--line); border-radius: 8px; padding: .5rem 1rem 1rem; }
+.uucop-devnote { color: var(--muted); font-size: .82rem; font-weight: 400; }
+.uucop-status { font-size: .85rem; color: var(--accent); margin: .5rem 0; }
+.uucop-log {
+  max-height: 18rem; overflow: auto; background: var(--card);
+  border: 1px solid var(--line); border-radius: 5px; padding: .7rem;
+  font-size: .78rem; line-height: 1.45; white-space: pre-wrap;
+}
