@@ -204,8 +204,29 @@
 
     var btn = host.querySelector("button");
     var attempts = 0, fb = null;
+    // Two states, as in learnr: 'answer' grades the selection, 'retry' CLEARS
+    // and hands the question back. Previously "Try Again" ran the grading branch
+    // again, so it re-submitted the same still-selected wrong choice and looked
+    // like it did nothing.
+    var mode = "answer";
+
+    function setInputsDisabled(v) {
+      host.querySelectorAll("input").forEach(function (el) { el.disabled = v; });
+    }
+
+    function toAnswerMode() {
+      mode = "answer";
+      if (fb) { fb.remove(); fb = null; }      // drop the feedback, as learnr does
+      setInputsDisabled(false);                 // ...and hand the choices back
+      btn.className = "btn btn-primary";
+      btn.textContent = "Submit Answer";
+      // The previous selection is deliberately LEFT checked: learnr keeps it, so
+      // a student can change one option rather than start from nothing.
+    }
 
     btn.addEventListener("click", function () {
+      if (mode === "retry") { toAnswerMode(); return; }
+
       var sel = host.querySelector('input[name="' + name + '"]:checked');
       if (!sel) return;
       attempts++;
@@ -214,19 +235,32 @@
       var self = isSelfAssessment(q);
 
       if (fb) fb.remove();
-      fb = alertEl(self ? "alert-success" : "",
-                   right ? (q.feedback && q.feedback.correct) || "Correct."
-                         : (q.feedback && q.feedback.incorrect) || "Not quite.");
+      // learnr's semantic classes. alert-success is what uucop-tutorial.css
+      // paints amber and labels "Self-assessment" -- correct for a genuine
+      // self-assessment item, wrong for a graded correct answer, which is why
+      // uucop-correct carries a green treatment and a "Correct" label instead.
+      var cls = self ? "alert-success"
+                     : (right ? "alert-success uucop-correct" : "alert-danger");
+      fb = alertEl(cls, right ? (q.feedback && q.feedback.correct) || "Correct."
+                              : (q.feedback && q.feedback.incorrect) || "Not quite.");
       host.appendChild(fb);
 
       noteAnswered(q.label);
       logEvent("question", { label: q.label, qkind: "single", correct: right,
                              answer: picked.text, attempt: attempts });
 
-      var retry = q.allow_retry && !right && !self;
-      host.querySelectorAll("input").forEach(function (el) { el.disabled = !retry; });
-      if (retry) { btn.textContent = "Try Again"; }
-      else { btn.disabled = true; btn.textContent = right || self ? "Answered" : "Answer Recorded"; }
+      // learnr disables the choices on every submission, retry or not.
+      setInputsDisabled(true);
+
+      if (q.allow_retry && !right && !self) {
+        mode = "retry";
+        btn.className = "btn btn-warning";      // learnr uses btn-warning here
+        btn.textContent = "Try Again";
+      } else {
+        btn.disabled = true;
+        btn.className = "btn btn-default";
+        btn.textContent = self ? "Recorded" : (right ? "Correct" : "Answer Recorded");
+      }
     });
   }
 
