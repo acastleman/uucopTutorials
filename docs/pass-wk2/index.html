@@ -3,72 +3,1395 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- The page is PUBLIC. GitHub Pages has no server-side auth: a public repo's
-     Pages is public, and private-repo Pages is an Enterprise Cloud feature.
-     noindex keeps it out of search results, which is the only privacy on offer. -->
+<!-- Public page: GitHub Pages cannot be access-controlled. noindex is the only
+     privacy available. The token in the URL fragment gates LOGGING, not reading. -->
 <meta name="robots" content="noindex, nofollow">
-<title>WK2 Retrieval Practice — Warm-Up (static prototype)</title>
-<link rel="stylesheet" href="uucop-static.css">
+<title>WK2 — The Engine of Learning: Retrieval Practice</title>
+<link rel="stylesheet" href="uucop-tutorial.css">
 </head>
-<body>
-
-<header class="uucop-header">
-  <div class="uucop-header-inner">
-    <span class="uucop-title">Retrieval Practice <span class="uucop-sub">WK2 &middot; Warm-Up</span></span>
-    <div class="uucop-progress" id="progress" aria-label="Tutorial progress">
-      <span class="uucop-progress-label">Questions</span>
-      <span class="uucop-progress-segs" id="segs"></span>
-      <span class="uucop-progress-count" id="count">&mdash; / 20</span>
-      <span class="uucop-progress-chip" id="chip" hidden></span>
-    </div>
-  </div>
-</header>
-
-<main>
-
-  <h1>Warm-Up</h1>
-  <p class="uucop-cue"><em>Activate. Target: 10 minutes.</em></p>
-
-  <p>These questions revisit concepts from WK1. No peeking at notes &mdash; the
-  struggle to recall is exactly the point.</p>
-
-  <hr>
-
-  <!-- Questions render here from questions.js. Everything above this point is
-       ordinary HTML: prose, figures, kable tables and SVG widgets all port
-       across unchanged, because none of them ever needed R at runtime. -->
-  <div id="questions"></div>
-
-  <hr>
-
-  <section class="uucop-devpanel">
-    <h2>Event log <span class="uucop-devnote">prototype only &mdash; delete before real use</span></h2>
-    <p class="uucop-devnote">
-      Every row is exactly what would be POSTed to
-      <code>rpc/uucop_log_event</code>. With no Supabase URL configured the
-      engine queues to <code>localStorage</code> and shows the payload here, so
-      the round trip is inspectable without a backend.
-    </p>
-    <div class="uucop-status" id="logstatus"></div>
-    <pre id="log" class="uucop-log"></pre>
-  </section>
-
-</main>
-
-<script src="questions.js"></script>
+<body class="uucop-static">
+<a class="sr-only sr-only-focusable visually-hidden-focusable" href="#learnr-tutorial-content">Skip to Tutorial Content</a>
+<div class="pageContent band">
+<main class="bandContent page"><article class="topics" id="learnr-tutorial-content"><!-- ──────────────────────────────────────────────────────────────
+     Per-tutorial configuration consumed by www/uucop-tutorial.js
+     (header text, sidebar grouping, localStorage key)
+     ────────────────────────────────────────────────────────────── --><script type="application/json" id="uucop-config">
+{
+  "course":     "PHRM 707",
+  "week":       "Week 2",
+  "title":      "Retrieval Practice",
+  "crumb":      "Pre-class tutorial",
+  "logoUrl":    "www/UUCOP%20logo.png",
+  "storageKey": "pass-wk2-retrieval",
+  "progress":   {"target": 20, "label": "Questions"},
+  "groups": [
+    {"label": "Activate",    "match": "welcome|primer|immediate|warm"},
+    {"label": "Build",       "match": "illusion|retrieval|desirable|practical|two types"},
+    {"label": "Consolidate", "match": "comprehension|synthesis|model summary|arrive|next"}
+  ]
+}
+</script><div id="section-welcome-study-plan" class="section level2" data-progressive="FALSE">
+<h2>Welcome &amp; Study Plan</h2>
+<div class="section-callout">
+<p><strong>Flipped classroom: complete every section of this tutorial
+before class — through <em>What’s Next</em>.</strong> Class time is for
+applying, discussing, and extending what you learn here — not for
+hearing it for the first time.</p>
+</div>
+<hr>
+<p><strong>How to use this tutorial:</strong></p>
+<p>Every section is pre-class work. The sidebar groups them into three
+passes:</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>Activate</strong> — Warm-Up (~10 min) retrieves WK1 concepts
+before you build on them; Primer (~15 min) introduces the Forest Trail
+model and core WK2 vocabulary. Do these first, in order.</li>
+<li>
+<strong>Build</strong> — The Illusion of Knowing; Retrieval Practice
+and the Testing Effect; Desirable Difficulty; Practical Retrieval
+Strategies (~50–60 min).</li>
+<li>
+<strong>Consolidate</strong> — Comprehension Check, Synthesis, and
+Model Summary (~30–40 min), then Arrive Ready For and What’s Next. Work
+the Check and the Model Summary from memory with your notes closed; that
+effort is the whole point of the pass.</li>
+</ol>
+<p><strong>Consolidate is not after-class work.</strong> It carries
+roughly a third of this tutorial’s questions, and the Model Summary is
+the single most valuable question in it. Finish all three passes before
+you walk into class.</p>
+<hr>
+<p><strong>Recommended schedule:</strong></p>
+<table class="table table-striped table-hover table-bordered" style="margin-left: auto; margin-right: auto;">
+<thead><tr>
+<th style="text-align:left;">
+When
+</th>
+<th style="text-align:left;">
+What
+</th>
+<th style="text-align:left;">
+Target
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+2 days before class
+</td>
+<td style="text-align:left;">
+Activate + Build
+</td>
+<td style="text-align:left;">
+75–85 min
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Day before class
+</td>
+<td style="text-align:left;">
+Consolidate — all five sections
+</td>
+<td style="text-align:left;">
+30–40 min
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<strong>In class</strong>
+</td>
+<td style="text-align:left;">
+<strong>Apply, discuss, debate, teach</strong>
+</td>
+<td style="text-align:left;">
+<strong>50 min</strong>
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Within 2 days after class
+</td>
+<td style="text-align:left;">
+Assignments, plus the spaced review that What’s Next schedules for you
+</td>
+<td style="text-align:left;">
+Varies
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><strong>A note on this tutorial:</strong></p>
+<p>This week’s topic is retrieval practice — and this tutorial is itself
+an exercise in retrieval practice. Every question is a learning event.
+The discomfort of uncertain recall is the mechanism you’ll study in
+class. You’ll have the lived experience before you encounter the
+research.</p>
+<hr>
+<div id="section-have-a-question-for-dr.-castleman" class="section level3">
+<h3>Have a question for Dr. Castleman?</h3>
+<p>Type it below. Your question goes directly to the instructor.</p>
+<div class="row">
+<div class="col-sm-8">
+<div class="shiny-input-textarea form-group shiny-input-container">
+<label class="control-label shiny-label-null" for="student_question" id="student_question-label"></label>
+<textarea id="student_question" class="form-control" placeholder="Ask anything about this week's topic — no question is too basic" rows="3" data-update-on="change"></textarea>
+</div>
+<button id="submit_question" type="button" class="btn btn-default action-button" style="background:#8C1B2A;color:white;border:none;padding:8px 20px;border-radius:4px;"><span class="action-label">Send Question</span></button>
+
+</div>
+</div>
+<hr>
+</div>
+<div id="section-feedback-on-this-tutorial" class="section level3">
+<h3>Feedback on this tutorial</h3>
+<p>Feedback is reviewed by an AI and used to make targeted improvements.
+Be specific — “the forest analogy was unclear in Part B because I wasn’t
+sure what stamping down foliage represented” is more useful than
+“confusing.” No limit on submissions.</p>
+<div class="row">
+<div class="col-sm-8">
+<div class="form-group shiny-input-container">
+<label class="control-label" id="feedback_category-label" for="feedback_category">Category:</label>
+<div>
+<select id="feedback_category" class="shiny-input-select"><option value="Select a category..." selected>Select a category...</option>
+<option value="Factual error">Factual error</option>
+<option value="Level mismatch">Level mismatch</option>
+<option value="Conceptual gap">Conceptual gap</option>
+<option value="Clarity issue">Clarity issue</option>
+<option value="Question design">Question design</option>
+<option value="Positive">Positive</option>
+<option value="Other">Other</option></select>
+</div>
+</div>
+<div class="form-group shiny-input-container">
+<label class="control-label" id="feedback_section-label" for="feedback_section">Section:</label>
+<div>
+<select id="feedback_section" class="shiny-input-select"><option value="Welcome &amp; Study Plan" selected>Welcome &amp; Study Plan</option>
+<option value="Warm-Up">Warm-Up</option>
+<option value="Primer">Primer</option>
+<option value="The Illusion of Knowing">The Illusion of Knowing</option>
+<option value="Retrieval Practice and the Testing Effect">Retrieval Practice and the Testing Effect</option>
+<option value="Desirable Difficulty">Desirable Difficulty</option>
+<option value="Practical Retrieval Strategies">Practical Retrieval Strategies</option>
+<option value="Comprehension Check">Comprehension Check</option>
+<option value="Synthesis">Synthesis</option>
+<option value="Model Summary">Model Summary</option>
+<option value="Arrive Ready For">Arrive Ready For</option>
+<option value="What's Next">What's Next</option>
+<option value="General">General</option></select>
+</div>
+</div>
+<div class="shiny-input-textarea form-group shiny-input-container">
+<label class="control-label" id="feedback_text-label" for="feedback_text">Your feedback:</label>
+<textarea id="feedback_text" class="form-control" placeholder="e.g., 'The Forest Trail analogy in the Primer was helpful, but Part D felt too easy for me to know where I actually had gaps'" rows="4" data-update-on="change"></textarea>
+</div>
+<button id="submit_feedback" type="button" class="btn btn-default action-button" style="background:#8C1B2A;color:white;border:none;padding:8px 20px;border-radius:4px;"><span class="action-label">Send Feedback</span></button>
+
+</div>
+</div>
+<hr>
+</div>
+</div>
+<div id="section-warm-up" class="section level2" data-progressive="FALSE">
+<h2>Warm-Up</h2>
+<p><em>Activate. Target: 10 minutes.</em></p>
+<p>These questions revisit concepts from WK1. No peeking at notes — the
+struggle to recall is exactly the point.</p>
+<hr>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_pipeline_rem_101" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_pipeline_self_102" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_decay_und_103" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_myths_und_104" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_retrieval_pred_105" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<hr>
+</div>
+<div id="section-primer" class="section level2" data-progressive="FALSE">
+<h2>Primer</h2>
+<p><em>Activate. Target: 15 minutes.</em></p>
+<hr>
+<div id="section-part-a-retrieve-what-you-know" class="section level3">
+<h3>Part A — Retrieve What You Know</h3>
+<p>Before building the WK2 model, produce what you already know about
+how memory works.</p>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_prior_mem_201" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_prior_passive_202" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<hr>
+</div>
+<div id="section-part-b-the-forest-trail-model" class="section level3">
+<h3>Part B — The Forest Trail Model</h3>
+<div class="section-callout">
+<p><strong>The Forest Trail Model</strong></p>
+<p>WK1 established that the Learning Pipeline runs in two directions:
+<em>encoding</em> (building the road) and <em>retrieval</em> (driving
+it). WK2 asks: what does the driving actually look like — and why does
+the type of driving matter enormously?</p>
+<p>Here is a new frame for the same idea.</p>
+<p>Imagine you are entering a dense forest. The forest represents a
+topic you are studying — pharmacology, pharmaceutics, or any subject
+with a large body of information to learn.</p>
+<table class="table table-striped table-hover table-bordered" style="margin-left: auto; margin-right: auto;">
+<thead><tr>
+<th style="text-align:left;">
+Scenario
+</th>
+<th style="text-align:left;">
+What it looks like
+</th>
+<th style="text-align:left;">
+What it does to memory
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+<strong>Re-reading notes</strong>
+</td>
+<td style="text-align:left;">
+You walk a pre-paved path someone else built. Smooth, easy, familiar.
+</td>
+<td style="text-align:left;">
+You recognize the terrain but did not build the path. Familiarity grows;
+ability to navigate without the path does not.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<strong>Watching a recording again</strong>
+</td>
+<td style="text-align:left;">
+Same pre-paved path, second trip. Still easy.
+</td>
+<td style="text-align:left;">
+Familiarity increases further. Still not your path.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+<strong>Retrieval practice</strong>
+</td>
+<td style="text-align:left;">
+You are dropped in the middle of the forest with no path. You must find
+your way out using only what you remember.
+</td>
+<td style="text-align:left;">
+Every struggle stamps down foliage, clears branches, and forges a trail.
+Hard at first. More durable each time.
+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The key insight:</strong> Familiarity with the path is not
+the same as the ability to navigate without it. A student who has
+re-read a chapter three times can recognize information when they see it
+— but cannot generate it on a blank exam page, because they never
+practiced generating.</p>
+<p><strong>The connection to WK1:</strong> In the Learning Pipeline road
+analogy, encoding builds the road. But roads that are never driven
+become overgrown (knowledge decay). Retrieval practice is the act of
+deliberately driving routes before they fade — stamping them into
+durable long-term memory.</p>
+</div>
+<p><strong>Two clarifications before the key terms:</strong></p>
+<ul>
+<li>“Retrieval” does not mean taking a test. It means any act of pulling
+information out of your own memory — free-writing, explaining to a
+friend, answering practice questions, completing a brain dump. The exam
+is not the retrieval event; the preparation is.</li>
+<li>The Forest Trail is not a metaphor for cramming. Cramming (mass
+retrieval right before a deadline) produces short-term access but no
+durable trail. The trail becomes durable only through repeated trips
+spaced over time — which WK3 addresses directly.</li>
+</ul>
+<hr>
+</div>
+<div id="section-part-c-key-terms" class="section level3">
+<h3>Part C — Key Terms</h3>
+<table class="table table-striped table-hover table-bordered" style="margin-left: auto; margin-right: auto;">
+<thead><tr>
+<th style="text-align:left;">
+Term
+</th>
+<th style="text-align:left;">
+Definition
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;width: 20em; font-weight: bold;">
+Retrieval practice
+</td>
+<td style="text-align:left;width: 42em; ">
+The deliberate act of pulling information from long-term memory into
+working memory — not just re-encountering it
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 20em; font-weight: bold;">
+Testing effect
+</td>
+<td style="text-align:left;width: 42em; ">
+The empirical finding that attempting retrieval (e.g., a practice test)
+improves long-term retention more than re-studying the same material
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 20em; font-weight: bold;">
+Illusion of fluency
+</td>
+<td style="text-align:left;width: 42em; ">
+The cognitive bias by which ease of processing is misinterpreted as
+evidence of deep learning; familiarity feels like mastery
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 20em; font-weight: bold;">
+Desirable difficulty
+</td>
+<td style="text-align:left;width: 42em; ">
+A form of difficulty that slows down practice performance but enhances
+long-term retention; retrieval practice, spacing, and interleaving are
+all examples
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 20em; font-weight: bold;">
+Reconsolidation
+</td>
+<td style="text-align:left;width: 42em; ">
+The process by which a retrieved memory is restabilized and strengthened
+each time it is recalled; retrieval does not merely access memory — it
+updates it
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 20em; font-weight: bold;">
+Declarative knowledge
+</td>
+<td style="text-align:left;width: 42em; ">
+Knowledge about facts, concepts, and relationships — what something IS
+(static, can be stated)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 20em; font-weight: bold;">
+Procedural knowledge
+</td>
+<td style="text-align:left;width: 42em; ">
+Knowledge about how to perform a skill or execute a process — what to DO
+(dynamic, tied to performance, improves through practice)
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</div>
+<div id="section-part-d-diagnostic-self-check" class="section level3">
+<h3>Part D — Diagnostic Self-Check</h3>
+<p>This question tests whether you have the cognitive science background
+to make sense of WK2’s core claim. If it’s difficult, that is useful
+data.</p>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_diag_und_203" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<hr>
+</div>
+<div id="section-part-e-predictions" class="section level3">
+<h3>Part E — Predictions</h3>
+<p>Make your best guess. Wrong predictions now produce better
+learning.</p>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_pred_testing_204" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_pred_difficulty_205" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<hr>
+</div>
+</div>
+<div id="section-the-illusion-of-knowing" class="section level2">
+<h2>The Illusion of Knowing</h2>
+<p><em>Work through this section at your own pace.</em></p>
+<hr>
+<p>Most students do not choose passive study strategies out of laziness.
+They choose them because those strategies <em>feel</em> productive — and
+the brain has a built-in mechanism that makes passive re-exposure feel
+like learning.</p>
+<p>Understanding this mechanism is the first step to overriding it.</p>
+<hr>
+<div id="section-the-penny-problem" class="section level3">
+<h3>The Penny Problem</h3>
+<p>Which penny is correct? If you have spent time in the United States,
+you have handled thousands of pennies. Yet most people cannot accurately
+describe which direction Lincoln faces, where the date appears, or what
+text is on the heads side — even though all of this information was
+available every time they looked at a coin. Nickerson and Adams (1979)
+ran this as a formal experiment: shown a lineup of pennies with small
+errors introduced, fewer than half of their participants could pick the
+real one.</p>
+<div style="text-align:center; margin:24px 0;">
+<p><img src="www/Pennies.png" style="max-width:100%; width:620px; border:1px solid #ddd; border-radius:4px;" alt="Twelve versions of the heads side of a US Lincoln penny, labeled A through L in a three-by-four grid. They differ in which direction Lincoln faces and in the placement of IN GOD WE TRUST, LIBERTY, and the date. Only one is the real coin."></p>
+</div>
+<p>This is the familiarity gap: <em>high exposure to something does not
+mean you have encoded it deeply enough to reproduce or apply it.</em>
+You recognized pennies for years without ever retrieving the specific
+features that would let you reconstruct one from memory.</p>
+<p>Pharmacy students encounter the same gap when studying from slides: a
+slide that “makes sense” when reviewed is not the same as a concept that
+can be explained on an exam without the slide in front of you.</p>
+<hr>
+</div>
+<div id="section-the-illusion-of-fluency" class="section level3">
+<h3>The Illusion of Fluency</h3>
+<p>When you re-read text, two things happen simultaneously:</p>
+<ol style="list-style-type: decimal">
+<li>The text becomes <strong>perceptually fluent</strong> — your brain
+processes it more easily because it has seen the words and sentence
+structures before.</li>
+<li>Your brain interprets this ease as a signal of understanding — “if I
+can read this smoothly, I must know it.”</li>
+</ol>
+<p>Two findings pin this down. Koriat and Bjork (2005) showed that the
+misjudgment happens <em>during</em> study rather than after it: students
+rate material as learned at the moment it feels easiest, which is
+precisely when retrieval has not been tested yet. Rozenblit and Keil
+(2002) found the same pattern for mechanisms — people rate their
+understanding of how something works as high, then discover the gaps
+only when they are required to produce a full explanation.</p>
+<p>This is the illusion of fluency: ease of processing is treated as
+evidence of mastery. It is not. You can re-read a pharmacokinetics
+equation and have it “make sense” without being able to derive it, apply
+it to a novel case, or explain where each term comes from.</p>
+<div class="instructor-insight">
+<p><strong>Key insight:</strong> “Familiarity is not the same as
+mastery. You recognize it, but can you generate it from scratch? That’s
+the real test — and it’s what retrieval practice forces you to do.”</p>
+</div>
+<hr>
+</div>
+<div id="section-low-efficiency-techniques" class="section level3">
+<h3>Low-Efficiency Techniques</h3>
+<p>Not all study strategies are equal. Some are efficient uses of time;
+others feel productive while producing little durable learning.</p>
+<table class="table table-striped table-hover table-bordered" style="margin-left: auto; margin-right: auto;">
+<thead><tr>
+<th style="text-align:left;">
+Strategy
+</th>
+<th style="text-align:left;">
+Why It Feels Productive
+</th>
+<th style="text-align:left;">
+Why It Falls Short
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;width: 18em; font-weight: bold;">
+Re-reading / re-watching / re-writing
+</td>
+<td style="text-align:left;width: 24em; ">
+Fluency increases; material ‘makes sense’
+</td>
+<td style="text-align:left;width: 24em; ">
+Produces recognition, not recall; no retrieval of the memory trace
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 18em; font-weight: bold;">
+Solving problems then immediately checking
+</td>
+<td style="text-align:left;width: 24em; ">
+Checking confirms you understood the cue — but you didn’t retrieve
+without the cue
+</td>
+<td style="text-align:left;width: 24em; ">
+Because the answer appears immediately, retrieval effort is bypassed
+entirely
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 18em; font-weight: bold;">
+Over-rehearsing already mastered material
+</td>
+<td style="text-align:left;width: 24em; ">
+Performance on familiar material feels strong
+</td>
+<td style="text-align:left;width: 24em; ">
+Time is spent on secured knowledge rather than gaps; review is not
+practice
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 18em; font-weight: bold;">
+Passive highlighting
+</td>
+<td style="text-align:left;width: 24em; ">
+Active physical engagement feels like active learning
+</td>
+<td style="text-align:left;width: 24em; ">
+Underlining is a reading aid; it adds no retrieval or generation
+</td>
+</tr>
+</tbody>
+</table>
+<div class="warning-callout">
+<p><strong>Common trap:</strong> Immediately checking the answer to a
+practice problem is a low-efficiency habit. The moment you read the
+question and the answer together, you are processing a cue-response pair
+— not retrieving from memory. The retrieval event happens
+<em>before</em> you check. Students who flip the solution manual after
+30 seconds have bypassed the retrieval entirely.</p>
+</div>
+<hr>
+<p><strong>Before the questions:</strong> Rate your confidence.</p>
+<div class="confidence-checkpoint">
+<div class="confidence-checkpoint-label">✓ Confidence Checkpoint — complete before continuing</div>
+<div id="confidence_s1" class="form-group shiny-input-radiogroup shiny-input-container shiny-input-container-inline" role="radiogroup" aria-labelledby="confidence_s1-label">
+<label class="control-label" id="confidence_s1-label" for="confidence_s1">How confident are you that you could explain the illusion of fluency and the familiarity gap to a classmate without looking at your notes?</label>
+<div class="shiny-options-group">
+<label class="radio-inline">
+<input type="radio" name="confidence_s1" value="1"><span>1 — Not at all</span>
+</label>
+<label class="radio-inline">
+<input type="radio" name="confidence_s1" value="2"><span>2 — Slightly</span>
+</label>
+<label class="radio-inline">
+<input type="radio" name="confidence_s1" value="3"><span>3 — Moderately</span>
+</label>
+<label class="radio-inline">
+<input type="radio" name="confidence_s1" value="4"><span>4 — Very</span>
+</label>
+<label class="radio-inline">
+<input type="radio" name="confidence_s1" value="5"><span>5 — Completely</span>
+</label>
+</div>
+</div>
+</div>
+
+</div>
+<div id="section-section-questions" class="section level3">
+<h3>Section Questions</h3>
+<hr>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_fluency_rem_401" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_fluency_self_402" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_passive_app_403" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="model-check">
+<p><strong>Model check</strong></p>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_model_check_404" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+</div>
+<hr>
+</div>
+</div>
+<div id="section-retrieval-practice-and-the-testing-effect" class="section level2">
+<h2>Retrieval Practice and the Testing Effect</h2>
+<hr>
+<div id="section-what-is-retrieval-practice" class="section level3">
+<h3>What Is Retrieval Practice?</h3>
+<p>Retrieval practice is the deliberate act of pulling information
+<em>out</em> of memory — not putting more information <em>in</em>. This
+reframes the purpose of studying:</p>
+<ul>
+<li>The goal is not to expose yourself to more information.</li>
+<li>The goal is to prove to your own brain that a piece of information
+can be generated on demand.</li>
+</ul>
+<div class="instructor-insight">
+<p><strong>Key insight:</strong> “Think of it as ‘brain reps.’ Every
+time you successfully recall a piece of information, you are
+strengthening the neural pathways to that information. This shifts the
+frame: tests and quizzes aren’t just for grades — they are potent study
+tools in themselves.”</p>
+</div>
+<p>In the Forest Trail model: retrieval practice is the act of finding
+your way out of the forest with no path. The first time is hard. But
+each trip stamps down the foliage a little more. After several spaced
+retrieval sessions on the same material, the trail is clear enough that
+you can navigate it quickly and reliably under pressure — including exam
+pressure.</p>
+<p>Retrieval practice has two main benefits:</p>
+<ol style="list-style-type: decimal">
+<li>
+<strong>It reveals what you don’t actually know.</strong> Because
+you must generate information without cues, any gap immediately becomes
+visible. You cannot hide knowledge gaps behind fluency.</li>
+<li>
+<strong>It reconsolidates and strengthens the memory trace.</strong>
+Each retrieval attempt briefly destabilizes the memory and then
+restabilizes it in a stronger form. The memory is not merely accessed —
+it is updated.</li>
+</ol>
+<hr>
+</div>
+<div id="section-the-testing-effect" class="section level3">
+<h3>The Testing Effect</h3>
+<p>The testing effect is one of the most replicated findings in
+cognitive psychology: taking a practice test on material produces better
+long-term retention than studying that material for the same amount of
+time.</p>
+<div class="section-callout">
+<p><strong>Roediger &amp; Karpicke (2006)</strong></p>
+<p>In this landmark study, participants read a passage and then were
+assigned to one of two conditions:</p>
+<ul>
+<li>
+<strong>Study-Study group:</strong> read the passage a second
+time</li>
+<li>
+<strong>Study-Test group:</strong> attempted to recall the passage
+in free writing (no cues)</li>
+</ul>
+<p>When tested <strong>5 minutes later</strong>, the Study-Study group
+performed better. Their recent re-exposure gave them fluent access to
+the material.</p>
+<p>When tested <strong>1 week later</strong>, the Study-Test group
+remembered significantly more. The effortful retrieval during the
+practice test had produced durable memory traces that held over time,
+while the Study-Study group’s fluency advantage had faded.</p>
+</div>
+<p>This is why the illusion of fluency is dangerous: students evaluate
+their learning immediately after studying (when fluency is high) rather
+than a week later (when the real test occurs). They choose re-reading
+because it produces the highest score on their internal self-assessment
+— at the worst possible time to assess themselves.</p>
+<hr>
+<p><strong>Before the questions:</strong> Rate your confidence.</p>
+<div class="confidence-checkpoint">
+<div class="confidence-checkpoint-label">✓ Confidence Checkpoint — complete before continuing</div>
+<div id="confidence_s2" class="form-group shiny-input-radiogroup shiny-input-container shiny-input-container-inline" role="radiogroup" aria-labelledby="confidence_s2-label">
+<label class="control-label" id="confidence_s2-label" for="confidence_s2">How confident are you that you could explain why retrieval practice works — the mechanism, not just the finding — to someone who hasn't taken this class?</label>
+<div class="shiny-options-group">
+<label class="radio-inline">
+<input type="radio" name="confidence_s2" value="1"><span>1 — Not at all</span>
+</label>
+<label class="radio-inline">
+<input type="radio" name="confidence_s2" value="2"><span>2 — Slightly</span>
+</label>
+<label class="radio-inline">
+<input type="radio" name="confidence_s2" value="3"><span>3 — Moderately</span>
+</label>
+<label class="radio-inline">
+<input type="radio" name="confidence_s2" value="4"><span>4 — Very</span>
+</label>
+<label class="radio-inline">
+<input type="radio" name="confidence_s2" value="5"><span>5 — Completely</span>
+</label>
+</div>
+</div>
+</div>
+
+</div>
+<div id="section-section-questions-1" class="section level3">
+<h3>Section Questions</h3>
+<hr>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_te_und_501" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_te_app_502" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_te_ana_503" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="clinical-connection">
+<p><strong>From the clinic:</strong> A pharmacist checking a complex
+regimen is performing a retrieval task under pressure, not a recognition
+task. When a patient presents with an unusual combination of drugs and a
+new condition, the pharmacist cannot wait to look it up — they must
+generate candidate interactions and prioritize them in real time. This
+requires retrieval of well-consolidated knowledge, not familiarity with
+the textbook page where it appeared.</p>
+<p>How does this connect to why retrieval practice is especially
+important in pharmacy education?</p>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_clinical_app_504" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<hr>
+</div>
+</div>
+<div id="section-desirable-difficulty" class="section level2">
+<h2>Desirable Difficulty</h2>
+<hr>
+<p>Most of us share a default assumption about learning: easier
+conditions make better learning. If a concept is explained more clearly,
+more slowly, or with better examples, we will understand it more
+deeply.</p>
+<p>Research on desirable difficulty challenges this assumption directly.
+<strong>The conditions that produce the best performance during practice
+are not the conditions that produce the best long-term
+retention.</strong> Making practice easier often makes long-term
+learning worse.</p>
+<p>Retrieval practice is a desirable difficulty because the effortful
+work of forging the trail is what makes it durable. A trail you walked
+without effort is not yours — it is the path someone else maintained for
+you.</p>
+<hr>
+<p><strong>Before the questions:</strong> Rate your confidence.</p>
+<div class="confidence-checkpoint">
+<div class="confidence-checkpoint-label">✓ Confidence Checkpoint — complete before continuing</div>
+<div id="confidence_s3" class="form-group shiny-input-radiogroup shiny-input-container shiny-input-container-inline" role="radiogroup" aria-labelledby="confidence_s3-label">
+<label class="control-label" id="confidence_s3-label" for="confidence_s3">How confident are you that you could explain desirable difficulty — including why difficulty helps and what the tradeoff is during practice?</label>
+<div class="shiny-options-group">
+<label class="radio-inline">
+<input type="radio" name="confidence_s3" value="1"><span>1 — Not at all</span>
+</label>
+<label class="radio-inline">
+<input type="radio" name="confidence_s3" value="2"><span>2 — Slightly</span>
+</label>
+<label class="radio-inline">
+<input type="radio" name="confidence_s3" value="3"><span>3 — Moderately</span>
+</label>
+<label class="radio-inline">
+<input type="radio" name="confidence_s3" value="4"><span>4 — Very</span>
+</label>
+<label class="radio-inline">
+<input type="radio" name="confidence_s3" value="5"><span>5 — Completely</span>
+</label>
+</div>
+</div>
+</div>
+
+<div id="section-section-questions-2" class="section level3">
+<h3>Section Questions</h3>
+<hr>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_dd_und_601" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_dd_app_602" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_dd_ana_603" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="model-check">
+<p><strong>Model check</strong></p>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_model_check_604" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+</div>
+<hr>
+</div>
+</div>
+<div id="section-practical-retrieval-strategies" class="section level2">
+<h2>Practical Retrieval Strategies</h2>
+<hr>
+<p>Knowing that retrieval practice is effective is not enough. Students
+need specific methods to implement it in their actual coursework —
+especially across the mix of declarative and procedural content in
+pharmacy education.</p>
+<hr>
+<div id="section-methods-for-declarative-knowledge" class="section level3">
+<h3>Methods for Declarative Knowledge</h3>
+<table class="table table-striped table-hover table-bordered" style="margin-left: auto; margin-right: auto;">
+<thead><tr>
+<th style="text-align:left;">
+Method
+</th>
+<th style="text-align:left;">
+How to Do It
+</th>
+<th style="text-align:left;">
+Best For
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;width: 14em; font-weight: bold;">
+Brain Dump
+</td>
+<td style="text-align:left;width: 28em; ">
+After class or a study session: close all notes and write down
+everything you can recall on a blank page. Then open notes and check for
+gaps.
+</td>
+<td style="text-align:left;width: 20em; ">
+Revealing gaps immediately after a study session; first retrieval hit
+while memory is warm
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 14em; font-weight: bold;">
+Cover-Copy-Check
+</td>
+<td style="text-align:left;width: 28em; ">
+Cover a section of your notes. Attempt to rewrite or redraw the covered
+content from memory. Uncover and check. Repeat for gaps.
+</td>
+<td style="text-align:left;width: 20em; ">
+Dense reference content (drug names, mechanisms, classifications)
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 14em; font-weight: bold;">
+Flashcards (spaced repetition)
+</td>
+<td style="text-align:left;width: 28em; ">
+Write the concept on the front, the full explanation on the back. Always
+say your answer aloud before flipping. Use Anki or Quizlet for spaced
+intervals.
+</td>
+<td style="text-align:left;width: 20em; ">
+High-volume factual content that needs to stick long-term; best when
+spaced across days
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 14em; font-weight: bold;">
+Feynman Method
+</td>
+<td style="text-align:left;width: 28em; ">
+Select a concept and explain it in plain language — as if teaching a
+high school student — without looking at your notes. Where you stumble =
+what you haven’t encoded.
+</td>
+<td style="text-align:left;width: 20em; ">
+Concepts that must be applied or explained, not just recognized;
+especially effective for identifying gaps in understanding
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 14em; font-weight: bold;">
+Concept Map from Memory
+</td>
+<td style="text-align:left;width: 28em; ">
+Without looking at course materials, draw a concept map connecting all
+the major ideas from a topic. Check against your notes and add missing
+connections.
+</td>
+<td style="text-align:left;width: 20em; ">
+Topics with interconnected concepts; visualizing relationships rather
+than isolated facts
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 14em; font-weight: bold;">
+Peer Quizzing
+</td>
+<td style="text-align:left;width: 28em; ">
+Form groups of 2–4. Each person writes 3–5 quiz questions from the
+week’s material. Quiz each other and discuss disagreements.
+</td>
+<td style="text-align:left;width: 20em; ">
+Interleaved practice across multiple topics; simulating exam conditions
+</td>
+</tr>
+</tbody>
+</table>
+<div class="warning-callout">
+<p><strong>Flashcard trap:</strong> The most common misuse of flashcards
+is flipping the card the moment you can’t immediately recall the answer.
+The act of struggling to recall is the learning — not the card flip. If
+you cannot recall the answer after 10–15 seconds of genuine effort, that
+is when you check. Then mark that card for review and attempt it again
+in a later session.</p>
+</div>
+<hr>
+</div>
+<div id="section-methods-for-procedural-knowledge" class="section level3">
+<h3>Methods for Procedural Knowledge</h3>
+<p>Procedural knowledge (how to do something) cannot be retrieved the
+same way as declarative knowledge (what something is). You can define a
+buffer calculation in words, but you cannot claim you know how to
+perform one until you can execute it without a template.</p>
+<table class="table table-striped table-hover table-bordered" style="margin-left: auto; margin-right: auto;">
+<thead><tr>
+<th style="text-align:left;">
+Method
+</th>
+<th style="text-align:left;">
+What It Is
+</th>
+<th style="text-align:left;">
+Why It Works
+</th>
+</tr></thead>
+<tbody>
+<tr>
+<td style="text-align:left;width: 14em; font-weight: bold;">
+Retrieved Execution
+</td>
+<td style="text-align:left;width: 26em; ">
+Performing a complete procedure from memory, without any cue or
+template. No worked example visible — start to finish from recall.
+</td>
+<td style="text-align:left;width: 22em; ">
+Forces procedural memory retrieval rather than recognition of a familiar
+template. Errors reveal where the procedure is not yet automated.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 14em; font-weight: bold;">
+Variable Modification
+</td>
+<td style="text-align:left;width: 26em; ">
+Starting with a solved problem and deliberately changing one parameter
+(dose, renal function, patient weight). Re-derive the answer and explain
+what changed and why.
+</td>
+<td style="text-align:left;width: 22em; ">
+Builds flexible application rather than rote execution. Variation
+prevents over-reliance on surface features of specific examples.
+</td>
+</tr>
+<tr>
+<td style="text-align:left;width: 14em; font-weight: bold;">
+Challenges
+</td>
+<td style="text-align:left;width: 26em; ">
+Prompted practice problems — either from a question bank or
+self-generated. Must be worked to completion and checked, not just
+recognized as ‘I know how to do this.’
+</td>
+<td style="text-align:left;width: 22em; ">
+Simulates the performance context — an exam or clinical scenario — where
+procedural knowledge must be executed on demand.
+</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<p><strong>Before the questions:</strong> Rate your confidence.</p>
+<div class="confidence-checkpoint">
+<div class="confidence-checkpoint-label">✓ Confidence Checkpoint — complete before continuing</div>
+<div id="confidence_s4" class="form-group shiny-input-radiogroup shiny-input-container shiny-input-container-inline" role="radiogroup" aria-labelledby="confidence_s4-label">
+<label class="control-label" id="confidence_s4-label" for="confidence_s4">How confident are you that you could describe at least three retrieval practice methods with enough specificity to actually use them this week?</label>
+<div class="shiny-options-group">
+<label class="radio-inline">
+<input type="radio" name="confidence_s4" value="1"><span>1 — Not at all</span>
+</label>
+<label class="radio-inline">
+<input type="radio" name="confidence_s4" value="2"><span>2 — Slightly</span>
+</label>
+<label class="radio-inline">
+<input type="radio" name="confidence_s4" value="3"><span>3 — Moderately</span>
+</label>
+<label class="radio-inline">
+<input type="radio" name="confidence_s4" value="4"><span>4 — Very</span>
+</label>
+<label class="radio-inline">
+<input type="radio" name="confidence_s4" value="5"><span>5 — Completely</span>
+</label>
+</div>
+</div>
+</div>
+
+</div>
+<div id="section-section-questions-3" class="section level3">
+<h3>Section Questions</h3>
+<hr>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_strat_app_701" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_strat_und_702" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_strat_rem_703" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<hr>
+</div>
+</div>
+<div id="section-comprehension-check" class="section level2" data-progressive="FALSE">
+<h2>Comprehension Check</h2>
+<p><em>Consolidate. Attempt from memory, notes closed. Target: 10–15
+minutes.</em></p>
+<p>Attempt these from memory without re-reading. The retrieval effort is
+the mechanism.</p>
+<hr>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_rp_rem_301" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_rp_self_302" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_fluency_und_303" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_testing_app_304" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_difficulty_und_305" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_pred_revisit_306" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="model-check">
+<p><strong>Model check</strong></p>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_model_check_307" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+</div>
+<hr>
+<hr>
+</div>
+<div id="section-synthesis" class="section level2">
+<h2>Synthesis</h2>
+<p><em>Mixed practice across all of this tutorial’s content.</em></p>
+<hr>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_syn_und_901" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_syn_app_902" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_syn_ana_903" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_syn_rem_904" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_syn_app_905" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<hr>
+<div id="section-write-your-own-practice-question" class="section level3">
+<h3>Write Your Own Practice Question</h3>
+<p>Writing an exam question requires you to identify what the key
+concepts are, anticipate how students might go wrong, and articulate why
+the correct answer is correct. This is one of the highest-order
+retrieval activities available to you.</p>
+<div class="row">
+<div class="col-sm-10">
+<h4>Write a Practice Question</h4>
+<p>Write an MCQ testing one of WK2's concepts. Strong questions have plausible distractors — each wrong answer should represent a genuine misconception, not an obvious mistake.</p>
+<div class="shiny-input-textarea form-group shiny-input-container">
+<label class="control-label" id="student_q_stem-label" for="student_q_stem">Question stem:</label>
+<textarea id="student_q_stem" class="form-control" placeholder="Write your question here..." rows="3" data-update-on="change"></textarea>
+</div>
+<div class="form-group shiny-input-container">
+<label class="control-label" id="student_q_a-label" for="student_q_a">Option A:</label>
+<input id="student_q_a" type="text" class="shiny-input-text form-control" value="" data-update-on="change">
+</div>
+<div class="form-group shiny-input-container">
+<label class="control-label" id="student_q_b-label" for="student_q_b">Option B:</label>
+<input id="student_q_b" type="text" class="shiny-input-text form-control" value="" data-update-on="change">
+</div>
+<div class="form-group shiny-input-container">
+<label class="control-label" id="student_q_c-label" for="student_q_c">Option C:</label>
+<input id="student_q_c" type="text" class="shiny-input-text form-control" value="" data-update-on="change">
+</div>
+<div class="form-group shiny-input-container">
+<label class="control-label" id="student_q_d-label" for="student_q_d">Option D:</label>
+<input id="student_q_d" type="text" class="shiny-input-text form-control" value="" data-update-on="change">
+</div>
+<div class="form-group shiny-input-container">
+<label class="control-label" id="student_q_correct-label" for="student_q_correct">Correct answer:</label>
+<div>
+<select id="student_q_correct" class="shiny-input-select"><option value="" selected>Select...</option>
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option></select>
+</div>
+</div>
+<div class="shiny-input-textarea form-group shiny-input-container">
+<label class="control-label" id="student_q_explanation-label" for="student_q_explanation">Why is this the correct answer?</label>
+<textarea id="student_q_explanation" class="form-control" placeholder="Explain the reasoning — and ideally, why each distractor is wrong" rows="3" data-update-on="change"></textarea>
+</div>
+<button id="submit_student_q" type="button" class="btn btn-default action-button" style="background:#8C1B2A;color:white;border:none;padding:8px 20px;border-radius:4px;"><span class="action-label">Submit Question</span></button>
+
+</div>
+</div>
+<hr>
+</div>
+</div>
+<div id="section-model-summary" class="section level2">
+<h2>Model Summary</h2>
+<hr>
+<div class="panel panel-default tutorial-question-container">
+<div data-label="q_model_sum_1001" class="tutorial-question panel-body">
+
+
+
+</div>
+</div>
+<hr>
+</div>
+<div id="section-arrive-ready-for" class="section level2" data-progressive="FALSE">
+<h2>Arrive Ready For</h2>
+<div class="prestudy-prompt">
+<p><strong>Come to class prepared to do the following.</strong> These
+activities assume you’ve completed the tutorial.</p>
+</div>
+<hr>
+<p><strong>1 — Demonstrate the illusion of fluency</strong></p>
+<p>Pick a topic from any current course that you studied recently by
+re-reading your notes. Before class, try to reproduce the key ideas from
+memory — no notes. Note the gap between how well you thought you knew it
+and how much you can actually produce. Be ready to describe that gap in
+one sentence.</p>
+<hr>
+<p><strong>2 — Match a strategy to your hardest material</strong></p>
+<p>For your hardest course right now, identify whether the primary
+knowledge being tested is declarative (facts, mechanisms, definitions)
+or procedural (calculations, case reasoning, clinical decision-making).
+Come prepared to say which retrieval strategy from the Practical
+Strategies section fits best — and why.</p>
+<hr>
+<p><strong>3 — Design one retrieval session</strong></p>
+<p>Design a specific 20-minute retrieval practice session for the
+material you’re currently studying. Not “I’ll review my notes” — a
+specific retrieval activity (brain dump, practice test, teach-back) with
+a defined topic and a way to check yourself afterward. Be ready to
+describe it in 30 seconds.</p>
+<hr>
+<div class="model-check">
+<p><strong>Quick self-check before class:</strong> Can you explain the
+difference between the testing effect and re-reading, and name two
+retrieval methods suited to declarative knowledge, without notes? If
+not, return to those sections before class.</p>
+</div>
+<hr>
+</div>
+<div id="section-whats-next" class="section level2">
+<h2>What’s Next</h2>
+<hr>
+<p>You now have the core principle: <strong>retrieval practice is the
+primary engine of durable learning.</strong> WK3 answers the question
+WK2 leaves open: <em>when</em> should you practice retrieval?</p>
+<p>The answer involves the forgetting curve — the same process that
+explains knowledge decay from WK1 — and two counterintuitive scheduling
+principles: spacing (distributing practice over time instead of massing
+it) and interleaving (mixing topics within a session instead of
+blocking).</p>
+<p><strong>Retention check:</strong> Without review, research suggests
+you will retain about 35–45% of this tutorial’s content in one week, and
+significantly less in two weeks. The most efficient use of your time
+is:</p>
+<ul>
+<li>Return to the <strong>Comprehension Check</strong> section in 3 days
+for a 10-minute retrieval hit (the second spacing interval).</li>
+<li>Return to the <strong>Synthesis</strong> section in 7–10 days for a
+longer session (the third interval).</li>
+<li>The WK3 tutorial’s Primer opens by retrieving the WK2
+retrieval-practice mechanism from scratch — that retrieval event is your
+fourth interval.</li>
+</ul>
+<p><strong>WK2 assignment:</strong> Select one retrieval method from the
+Practical Retrieval Strategies section and apply it to a topic from a
+current course. Specific options:</p>
+<ul>
+<li>Create 10 flashcards that force active recall (not passive
+recognition) on a topic you covered this week</li>
+<li>Do a 15-minute brain dump on a current pharmacology or pharmaceutics
+topic, then check for gaps</li>
+<li>Write three practice exam questions at the Analyze or Evaluate level
+on a topic from your hardest course</li>
+<li>Record a 2–4 minute audio clip explaining a concept from scratch as
+if teaching a classmate</li>
+</ul>
+<p>The requirement is to actually do the retrieval — not to plan to do
+it. Upload the result (image, document, or audio file) as your
+submission. 
+</p>
+<!--html_preserve-->
+<!--/html_preserve--><!--html_preserve--><!--/html_preserve-->
+</div>
+
+</article><!-- topics --><div class="topicsContainer">
+<div class="topicsPositioner">
+<div class="band">
+<div class="bandContent topicsListContainer">
+
+<!-- begin doc-metadata -->
+<div id="doc-metadata">
+<h1 class="title toc-ignore" style="display:none;">WK2 — The Engine of
+Learning: Retrieval Practice</h1>
+</div>
+<!-- end doc-metadata -->
+
+</div> <!-- bandContent.topicsListContainer -->
+</div> <!-- band -->
+</div> <!-- topicsPositioner -->
+</div> <!-- topicsContainer -->
+
+
+</main><!-- bandContent page -->
+</div>
+<script src="jquery.min.js"></script>
 <script src="uucop-static.js"></script>
+<script src="uucop-tutorial.js"></script>
+<script src="questions.js"></script>
 <script>
   UUCOP.start({
-    tutorial:     "PASS-WK2-RetrievalPractice",
-    minQuestions: 20,
-    minMinutes:   20,
-    // Leave supabaseUrl null to run fully offline (queues + logs to the panel).
-    // Set both to POST for real:
-    //   supabaseUrl: "https://<project>.supabase.co",
-    //   supabaseAnonKey: "<anon key>",
-    supabaseUrl:     null,
-    supabaseAnonKey: null
+    tutorial: "PASS-WK2-RetrievalPractice", minQuestions: 20, minMinutes: 20,
+    supabaseUrl: null, supabaseAnonKey: null
   });
 </script>
 </body>
 </html>
+

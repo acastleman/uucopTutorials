@@ -1,0 +1,948 @@
+/* =============================================================
+   UUCOP PASS Tutorial — shared stylesheet
+   Drop into each tutorial's `www/` directory and load via the
+   YAML header:
+
+     output:
+       learnr::tutorial:
+         css: "www/uucop-tutorial.css"
+
+   See Implementation Guide.html for full integration notes.
+   ============================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+
+:root {
+  --uu-crimson:       #8C1B2A;
+  --uu-crimson-deep:  #6e1421;
+  --uu-crimson-wash:  #faf0f1;
+  --uu-crimson-tint:  #f4e6e8;
+
+  --uu-paper:         #ffffff;
+  --uu-paper-2:       #faf8f4;
+  --uu-ink:           #1c1814;
+  --uu-ink-2:         #3a342d;
+  --uu-mid:           #6c6359;
+  --uu-mid-2:         #948b7e;
+  --uu-rule:          #e3dccd;
+  --uu-rule-2:        #efe9dc;
+
+  --uu-gold:          #b88a3f;
+  --uu-amber-bg:      #fdf6e7;
+  --uu-amber-ink:     #5a4015;
+
+  --uu-font-serif:    "Newsreader", "Source Serif 4", Georgia, "Times New Roman", serif;
+  --uu-font-sans:     "Source Sans 3", -apple-system, BlinkMacSystemFont, "Segoe UI", Lato, sans-serif;
+}
+
+/* ─────────────────────────────────────────────
+   Base
+   ───────────────────────────────────────────── */
+body, .band, .topics {
+  background-color: var(--uu-paper-2) !important;
+  font-family: var(--uu-font-sans);
+  color: var(--uu-ink);
+}
+body {
+  padding-top: 80px !important; /* 64px header + 16px buffer so section headings sit below header after learnr's scrollTop(0) */
+  font-feature-settings: "kern", "ss01";
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Offset anchor scrolling so section headings land below the fixed header
+   when learnr navigates via Continue / sidebar / hash links. */
+html {
+  scroll-padding-top: 80px;
+  scroll-behavior: smooth;
+}
+.section.level2,
+.section.level2 > h2:first-child {
+  scroll-margin-top: 80px;
+}
+
+.topics, .topics .section {
+  background: transparent;
+}
+
+/* ─────────────────────────────────────────────
+   Header (injected by JS as #uucop-header)
+   ───────────────────────────────────────────── */
+#uucop-header {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 9999;
+  background: var(--uu-paper);
+  border-bottom: 1px solid var(--uu-rule);
+  height: 64px;
+  padding: 0 28px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+#uucop-header::after {
+  content: "";
+  position: absolute;
+  left: 0; bottom: -1px;
+  width: 88px; height: 2px;
+  background: var(--uu-crimson);
+}
+
+/* Keep Bootstrap modals (Start Over confirmation, etc.) above the fixed header. */
+.modal-backdrop { z-index: 10040 !important; }
+.modal          { z-index: 10050 !important; }
+.uucop-mark {
+  display: flex; align-items: center;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+.uucop-mark img { height: 40px; display: block; }
+.uucop-divider {
+  width: 1px; height: 30px;
+  background: var(--uu-rule);
+  flex-shrink: 0;
+}
+.uucop-titleblock { min-width: 0; flex: 1; }
+.uucop-title {
+  font-family: var(--uu-font-serif);
+  font-weight: 500;
+  font-size: 17px;
+  line-height: 1.2;
+  color: var(--uu-ink);
+  letter-spacing: -0.005em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.uucop-crumb {
+  font-size: 11px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--uu-mid);
+  margin-top: 2px;
+  white-space: nowrap;
+}
+.uucop-crumb b { color: var(--uu-crimson); font-weight: 700; }
+.uucop-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+.uucop-progress-segs { display: flex; gap: 3px; }
+.uucop-progress-segs span {
+  display: inline-block;
+  width: 18px; height: 4px;
+  background: var(--uu-rule);
+  border-radius: 1px;
+  transition: background 0.3s;
+}
+.uucop-progress-segs span.done    { background: var(--uu-crimson); }
+.uucop-progress-segs span.current { background: var(--uu-crimson); opacity: 0.5; }
+.uucop-progress-count {
+  font-size: 12px;
+  color: var(--uu-mid);
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Question counter (only rendered when uucop-config carries a `progress` key;
+   every other tutorial keeps the sections readout above and never sees these) */
+.uucop-progress-label {
+  font-size: 11px;
+  color: var(--uu-mid-2);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.uucop-progress-chip {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: #fff;
+  background: var(--uu-crimson);
+  border-radius: 999px;
+  padding: 2px 9px;
+  white-space: nowrap;
+}
+.uucop-progress-chip[hidden] { display: none; }
+.uucop-progress.warn .uucop-progress-segs,
+.uucop-progress.warn .uucop-progress-label { display: none; }
+.uucop-progress.warn .uucop-progress-count {
+  color: var(--uu-amber-ink);
+  background: var(--uu-amber-bg);
+  border: 1px solid var(--uu-gold);
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-weight: 600;
+}
+
+/* The title block must win the squeeze — drop the counter's ornament first,
+   then its label, before anything truncates the tutorial name. */
+@media (max-width: 900px) {
+  .uucop-progress-label { display: none; }
+}
+@media (max-width: 720px) {
+  .uucop-progress-segs { display: none; }
+}
+
+/* ─────────────────────────────────────────────
+   Sidebar (learnr's .topicsList)
+   ───────────────────────────────────────────── */
+.topicsList {
+  top: 0 !important;
+  margin-top: 0 !important;
+  height: calc(100vh - 64px) !important;
+  max-height: calc(100vh - 64px) !important;
+  background: var(--uu-paper-2);
+  border-right: 1px solid var(--uu-rule);
+  padding-top: 14px !important;
+}
+.topicsList .tutorialTitle,
+.topicsList > h3,
+.topicsList > h4,
+.topicsHeader { display: none !important; }
+
+.topicsList .uucop-group {
+  list-style: none;
+  padding: 16px 18px 8px;
+  font-family: var(--uu-font-sans);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--uu-mid-2);
+  pointer-events: none;
+  border-top: 1px solid var(--uu-rule);
+  margin-top: 4px;
+}
+.topicsList .uucop-group:first-child,
+.topicsList .uucop-group.first {
+  border-top: 0;
+  margin-top: 0;
+  padding-top: 6px;
+}
+
+.topicsList .nav,
+.topicsList .nav-pills,
+.topicsList ul {
+  list-style: none !important;
+  padding-left: 0 !important;
+  margin: 0 !important;
+}
+.topicsList .nav > li,
+.topicsList .nav-pills > li,
+.topicsList ul > li {
+  list-style: none !important;
+}
+
+.topicsList .nav > li > a,
+.topicsList .nav-pills > li > a {
+  padding: 7px 16px 7px 54px !important;
+  font-size: 14px !important;
+  line-height: 1.35 !important;
+  color: var(--uu-ink-2) !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  position: relative;
+  border-left: 2px solid transparent;
+}
+.topicsList .nav > li > a:hover,
+.topicsList .nav-pills > li > a:hover {
+  background: var(--uu-rule-2) !important;
+  color: var(--uu-ink) !important;
+}
+.topicsList .nav > li > a .uucop-num,
+.topicsList .nav-pills > li > a .uucop-num {
+  position: absolute;
+  left: 14px; top: 7px;
+  display: inline-block;
+  font-family: var(--uu-font-sans);
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--uu-mid-2);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  width: 34px;
+  white-space: nowrap;
+  vertical-align: baseline;
+}
+.topicsList .topic.current > a,
+.topicsList .topic.current .nav-link {
+  background-color: var(--uu-crimson-wash) !important;
+  color: var(--uu-crimson) !important;
+  font-weight: 600 !important;
+  border-left-color: var(--uu-crimson) !important;
+}
+.topicsList .topic.current .uucop-num,
+.topicsList .topic.current > a .uucop-num { color: var(--uu-crimson) !important; }
+.topicsList .topic.visited > a .uucop-num::after {
+  content: "✓";
+  display: inline;
+  color: var(--uu-crimson);
+  font-weight: 700;
+  font-size: 11px;
+  margin-left: 4px;
+  vertical-align: baseline;
+  line-height: 1;
+}
+
+.topicsFooter {
+  position: sticky;
+  bottom: 0;
+  background: var(--uu-paper-2);
+  padding: 10px 0;
+  border-top: 1px solid var(--uu-rule);
+  z-index: 1;
+}
+
+/* ─────────────────────────────────────────────
+   Main content typography
+   ───────────────────────────────────────────── */
+.pageContent.band { background: var(--uu-paper-2) !important; }
+
+.topics h1, .topics h2, .topics h3 {
+  font-family: var(--uu-font-serif);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  color: var(--uu-ink);
+}
+.topics h2 {
+  font-size: 36px;
+  line-height: 1.1;
+  margin: 8px 0 8px;
+}
+.topics h2 + p > em:first-child,
+.topics h2 + p > i:first-child {
+  color: var(--uu-mid);
+  font-style: italic;
+  font-family: var(--uu-font-serif);
+}
+.topics h3 {
+  font-size: 24px;
+  line-height: 1.2;
+  margin: 32px 0 12px;
+}
+.topics h3::before {
+  content: "";
+  display: block;
+  width: 24px;
+  height: 2px;
+  background: var(--uu-crimson);
+  margin-bottom: 12px;
+}
+.topics h4 {
+  font-family: var(--uu-font-sans);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--uu-crimson);
+  margin: 22px 0 8px;
+}
+.topics p, .topics li {
+  font-family: var(--uu-font-sans);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--uu-ink-2);
+}
+.topics p { margin: 0 0 14px 0; }
+.topics a {
+  color: var(--uu-crimson);
+  text-decoration: none;
+  border-bottom: 1px solid var(--uu-crimson-tint);
+}
+.topics a:hover { border-bottom-color: var(--uu-crimson); }
+.topics hr {
+  border: 0;
+  border-top: 1px solid var(--uu-rule);
+  margin: 28px 0;
+}
+.topics strong, .topics b { color: var(--uu-ink); font-weight: 700; }
+.topics blockquote {
+  border-left: 2px solid var(--uu-rule);
+  margin: 16px 0;
+  padding: 4px 0 4px 18px;
+  color: var(--uu-mid);
+  font-style: italic;
+  font-family: var(--uu-font-serif);
+  font-size: 16px;
+}
+
+/* ─────────────────────────────────────────────
+   Tables (kableExtra + plain markdown)
+   ───────────────────────────────────────────── */
+.topics table, .topics .table, table.table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 18px 0;
+  background: var(--uu-paper);
+  font-size: 14.5px;
+  border: 1px solid var(--uu-rule);
+}
+.topics table thead th, table thead th, .topics .table thead th {
+  background: transparent !important;
+  color: var(--uu-crimson) !important;
+  border-right: none !important;
+  border-bottom: 2px solid var(--uu-crimson) !important;
+  font-family: var(--uu-font-sans);
+  font-size: 11px !important;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 700;
+  text-align: left;
+  padding: 10px 14px !important;
+}
+.topics table tbody tr:nth-child(even),
+table tbody tr:nth-child(even),
+.topics .table tbody tr:nth-child(even) {
+  background-color: var(--uu-paper-2) !important;
+}
+.topics table tbody td, table tbody td, .topics .table tbody td {
+  padding: 10px 14px !important;
+  border-top: 1px solid var(--uu-rule) !important;
+  color: var(--uu-ink-2);
+  vertical-align: top;
+}
+.topics .table > tbody > tr > td:first-child { color: var(--uu-ink); font-weight: 600; }
+
+/* ─────────────────────────────────────────────
+   Callouts: framework / instructor / caution
+   Plus aliases for v3.1 class names (transitional).
+   ───────────────────────────────────────────── */
+.callout,
+.section-callout,
+.prestudy-prompt,
+.clinical-connection,
+.model-check {
+  border-left: 2px solid var(--uu-crimson);
+  padding: 4px 0 4px 22px;
+  margin: 22px 0;
+  background: transparent;
+  border-radius: 0;
+}
+.callout-label {
+  font-family: var(--uu-font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--uu-crimson);
+  margin-bottom: 8px;
+}
+/* Auto-labels for legacy classes that didn't carry an explicit one */
+.section-callout::before     { content: "Framework"; display: block; }
+.prestudy-prompt::before     { content: "Pre-class prep"; display: block; }
+.clinical-connection::before { content: "Clinical example"; display: block; }
+.model-check::before         { content: "Model check"; display: block; }
+.section-callout::before,
+.prestudy-prompt::before,
+.clinical-connection::before,
+.model-check::before {
+  font-family: var(--uu-font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--uu-crimson);
+  margin-bottom: 8px;
+}
+.callout p, .callout li,
+.section-callout p, .section-callout li,
+.prestudy-prompt p, .prestudy-prompt li,
+.clinical-connection p, .clinical-connection li,
+.model-check p, .model-check li {
+  font-size: 15.5px;
+  line-height: 1.55;
+  margin: 0 0 10px;
+}
+.callout > *:last-child,
+.section-callout > *:last-child,
+.prestudy-prompt > *:last-child,
+.clinical-connection > *:last-child,
+.model-check > *:last-child { margin-bottom: 0; }
+
+/* When the first child of a callout is a paragraph that starts with **bold**,
+   treat that bold run as a sub-heading. */
+.callout > p:first-of-type > strong:first-child,
+.section-callout > p:first-of-type > strong:first-child,
+.prestudy-prompt > p:first-of-type > strong:first-child,
+.clinical-connection > p:first-of-type > strong:first-child,
+.model-check > p:first-of-type > strong:first-child {
+  font-family: var(--uu-font-serif);
+  font-weight: 500;
+  font-size: 20px;
+  line-height: 1.2;
+  color: var(--uu-ink);
+  display: block;
+  margin: 0 0 8px;
+  letter-spacing: -0.005em;
+}
+
+/* Instructor voice ──────────────────────── */
+.callout.callout--instructor,
+.instructor-insight {
+  border-left: 1px solid var(--uu-gold);
+  padding: 4px 0 4px 22px;
+  margin: 22px 0;
+  background: transparent;
+  border-radius: 0;
+  font-style: normal;
+}
+.instructor-insight::before {
+  content: "Instructor";
+  display: block;
+}
+.callout.callout--instructor .callout-label,
+.instructor-insight::before {
+  font-family: var(--uu-font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--uu-gold);
+  margin-bottom: 8px;
+}
+.callout.callout--instructor p,
+.callout.callout--instructor li,
+.instructor-insight p,
+.instructor-insight li {
+  font-family: var(--uu-font-serif);
+  font-style: italic;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--uu-ink-2);
+}
+
+/* Caution ──────────────────────────────── */
+.callout.callout--caution,
+.warning-callout {
+  background: var(--uu-amber-bg);
+  border-left: 2px solid var(--uu-gold);
+  padding: 14px 18px;
+  margin: 22px 0;
+  border-radius: 0 2px 2px 0;
+}
+.warning-callout::before {
+  content: "Caution";
+  display: block;
+}
+.callout.callout--caution .callout-label,
+.warning-callout::before {
+  font-family: var(--uu-font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--uu-amber-ink);
+  margin-bottom: 6px;
+}
+.callout.callout--caution p,
+.callout.callout--caution li,
+.warning-callout p,
+.warning-callout li {
+  color: var(--uu-amber-ink);
+  font-size: 15px;
+}
+
+/* ─────────────────────────────────────────────
+   Self-rating (replaces .confidence-checkpoint)
+   ───────────────────────────────────────────── */
+.rating,
+.confidence-checkpoint {
+  background: var(--uu-paper);
+  border: 1px solid var(--uu-rule);
+  border-radius: 3px;
+  padding: 16px 20px;
+  margin: 28px 0 8px;
+  box-shadow: none;
+}
+.rating-label,
+.confidence-checkpoint-label {
+  font-family: var(--uu-font-sans);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--uu-mid);
+  margin-bottom: 6px;
+}
+.rating .control-label,
+.rating .shiny-input-radiogroup > label,
+.rating .shiny-input-container > label,
+.confidence-checkpoint .control-label,
+.confidence-checkpoint .shiny-input-radiogroup > label,
+.confidence-checkpoint .shiny-input-container > label {
+  font-family: var(--uu-font-sans) !important;
+  font-size: 14.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: var(--uu-ink) !important;
+  margin-bottom: 12px !important;
+  line-height: 1.45 !important;
+  display: block;
+}
+.rating .shiny-options-group,
+.confidence-checkpoint .shiny-options-group {
+  display: flex !important;
+  gap: 8px !important;
+  margin-top: 4px;
+  flex-wrap: nowrap;
+}
+.rating .shiny-input-radiogroup .radio-inline input[type="radio"],
+.confidence-checkpoint .shiny-input-radiogroup .radio-inline input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+  width: 0; height: 0;
+  pointer-events: none;
+}
+.rating .shiny-input-radiogroup .radio-inline,
+.confidence-checkpoint .shiny-input-radiogroup .radio-inline {
+  flex: 1 1 0 !important;
+  display: block !important;
+  padding: 9px 8px !important;
+  margin: 0 !important;
+  border: 1px solid var(--uu-rule) !important;
+  border-radius: 2px !important;
+  background: var(--uu-paper-2) !important;
+  color: var(--uu-mid) !important;
+  font-family: var(--uu-font-sans) !important;
+  font-weight: 500 !important;
+  font-size: 13px !important;
+  text-align: center !important;
+  cursor: pointer !important;
+  transition: all 0.12s !important;
+  user-select: none !important;
+  min-width: 0 !important;
+}
+.rating .shiny-input-radiogroup .radio-inline:hover,
+.confidence-checkpoint .shiny-input-radiogroup .radio-inline:hover {
+  border-color: var(--uu-mid-2) !important;
+  background: var(--uu-paper) !important;
+  color: var(--uu-ink) !important;
+}
+.rating .shiny-input-radiogroup .radio-inline:has(input:checked),
+.confidence-checkpoint .shiny-input-radiogroup .radio-inline:has(input:checked) {
+  background: var(--uu-crimson) !important;
+  border-color: var(--uu-crimson) !important;
+  color: #fff !important;
+  font-weight: 600 !important;
+}
+/* Override all the per-position color rules from v3.1 — selected = crimson */
+.confidence-checkpoint .shiny-input-radiogroup .radio-inline:nth-child(1):has(input:checked),
+.confidence-checkpoint .shiny-input-radiogroup .radio-inline:nth-child(2):has(input:checked),
+.confidence-checkpoint .shiny-input-radiogroup .radio-inline:nth-child(3):has(input:checked),
+.confidence-checkpoint .shiny-input-radiogroup .radio-inline:nth-child(4):has(input:checked),
+.confidence-checkpoint .shiny-input-radiogroup .radio-inline:nth-child(5):has(input:checked) {
+  background: var(--uu-crimson) !important;
+  border-color: var(--uu-crimson) !important;
+  color: #fff !important;
+}
+.rating-anchors {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--uu-font-serif);
+  font-style: italic;
+  font-size: 12.5px;
+  color: var(--uu-mid-2);
+  margin-top: 8px;
+  padding: 0 2px;
+}
+.rating-gate,
+.confidence-gate-msg {
+  color: var(--uu-amber-ink);
+  background: var(--uu-amber-bg);
+  border: 1px solid var(--uu-gold) !important;
+  border-radius: 2px;
+  padding: 8px 14px;
+  margin: 10px 0 0 !important;
+  font-size: 13px;
+  font-family: var(--uu-font-sans);
+}
+
+/* ─────────────────────────────────────────────
+   Practice questions (learnr's .tutorial-question)
+   ───────────────────────────────────────────── */
+.tutorial-question {
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  margin: 22px 0 !important;
+  padding: 0 20px !important;
+  box-shadow: none !important;
+}
+.tutorial-question .panel-body { padding: 0 !important; background: transparent !important; }
+.tutorial-question .panel-heading { display: none !important; }
+
+.tutorial-question .question {
+  font-family: var(--uu-font-sans);
+  font-size: 15.5px;
+  font-weight: 500;
+  color: var(--uu-ink);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+.tutorial-question .question p { margin: 0 0 6px; }
+
+/* The question stem when learnr renders it as a Shiny label
+   (question_text() and question() both use <label class="control-label">
+   inside a .shiny-input-container). Override the form-label-eyebrow
+   style further down so the stem reads as a question, not a tiny
+   uppercase form label. */
+.tutorial-question .shiny-input-container > label,
+.tutorial-question label.control-label {
+  font-family: var(--uu-font-sans) !important;
+  font-size: 15.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  color: var(--uu-ink) !important;
+  margin-bottom: 12px !important;
+  line-height: 1.5 !important;
+  display: block;
+}
+
+.tutorial-question .shiny-options-group { margin-top: 4px; }
+
+/* Choice labels (MCQ radios + checkboxes). Bootstrap puts the
+   <input> absolutely-positioned with margin-left:-20px and expects
+   the label to carry padding-left:20px. Preserve that model. */
+.tutorial-question .radio,
+.tutorial-question .checkbox {
+  margin: 4px 0 !important;
+  padding: 0 !important;
+  position: relative;
+}
+.tutorial-question .radio label,
+.tutorial-question .checkbox label {
+  font-family: var(--uu-font-sans);
+  font-size: 14.5px;
+  color: var(--uu-ink-2);
+  font-weight: 400;
+  padding: 7px 10px 7px 32px !important;
+  border-radius: 2px;
+  cursor: pointer;
+  display: block;
+  line-height: 1.45;
+  position: relative;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.tutorial-question .radio label input[type="radio"],
+.tutorial-question .checkbox label input[type="checkbox"] {
+  position: absolute;
+  left: 12px;
+  top: 11px;
+  margin: 0;
+}
+.tutorial-question .radio label:hover,
+.tutorial-question .checkbox label:hover {
+  background: var(--uu-rule-2);
+}
+
+.tutorial-question .btn,
+.tutorial-question .btn-primary,
+.tutorial-question .btn-default {
+  background: var(--uu-ink) !important;
+  border: 1px solid var(--uu-ink) !important;
+  color: var(--uu-paper) !important;
+  font-family: var(--uu-font-sans);
+  font-weight: 600;
+  font-size: 12.5px !important;
+  letter-spacing: 0.06em;
+  border-radius: 2px !important;
+  padding: 7px 18px !important;
+  margin-top: 6px !important;
+  text-transform: none;
+}
+.tutorial-question .btn:hover,
+.tutorial-question .btn-primary:hover,
+.tutorial-question .btn-default:hover {
+  background: var(--uu-crimson) !important;
+  border-color: var(--uu-crimson) !important;
+}
+
+/* Model-answer feedback panels */
+.tutorial-question .alert {
+  font-family: var(--uu-font-serif);
+  font-size: 15.5px;
+  line-height: 1.55;
+  border-left: 2px solid var(--uu-crimson) !important;
+  border-radius: 0 !important;
+  background: var(--uu-crimson-wash) !important;
+  color: var(--uu-ink-2) !important;
+  padding: 12px 16px !important;
+  margin-top: 14px !important;
+  border-top: 0 !important;
+  border-right: 0 !important;
+  border-bottom: 0 !important;
+}
+.tutorial-question .alert-success {
+  border-left-color: var(--uu-gold) !important;
+  background: var(--uu-amber-bg) !important;
+  color: var(--uu-amber-ink) !important;
+}
+.tutorial-question .alert::before {
+  content: "Model answer";
+  display: block;
+  font-family: var(--uu-font-sans);
+  font-style: normal;
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: var(--uu-crimson);
+  margin-bottom: 6px;
+}
+.tutorial-question .alert-success::before { color: var(--uu-amber-ink); content: "Self-assessment"; }
+
+/* The auto-grown textarea (upgraded from text input by the JS) */
+.tutorial-question textarea {
+  font-family: var(--uu-font-sans) !important;
+  font-size: 14.5px !important;
+  color: var(--uu-ink) !important;
+  background: var(--uu-paper-2) !important;
+  border: 1px solid var(--uu-rule) !important;
+  border-radius: 2px !important;
+  padding: 10px 12px !important;
+  line-height: 1.5 !important;
+  width: 100% !important;
+}
+.tutorial-question textarea:focus {
+  border-color: var(--uu-crimson) !important;
+  outline: none !important;
+  background: var(--uu-paper) !important;
+  box-shadow: 0 0 0 2px var(--uu-crimson-wash) !important;
+}
+
+/* ─────────────────────────────────────────────
+   Shiny form controls (instructor question, feedback,
+   student-generated MCQ). The form-label-eyebrow style
+   below is for FORMS outside of .tutorial-question; the
+   override above (in the practice-questions section)
+   neutralizes it for learnr's question UI.
+   ───────────────────────────────────────────── */
+.shiny-input-container { margin-bottom: 14px; }
+.shiny-input-container > label {
+  font-family: var(--uu-font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--uu-mid);
+  margin-bottom: 4px;
+}
+.shiny-input-container textarea,
+.shiny-input-container input[type="text"],
+.shiny-input-container select {
+  font-family: var(--uu-font-sans) !important;
+  font-size: 14.5px !important;
+  color: var(--uu-ink) !important;
+  background: var(--uu-paper) !important;
+  border: 1px solid var(--uu-rule) !important;
+  border-radius: 2px !important;
+  padding: 9px 12px !important;
+  width: 100% !important;
+  line-height: 1.5 !important;
+}
+.shiny-input-container textarea:focus,
+.shiny-input-container input[type="text"]:focus,
+.shiny-input-container select:focus {
+  border-color: var(--uu-crimson) !important;
+  outline: none !important;
+  box-shadow: 0 0 0 2px var(--uu-crimson-wash) !important;
+}
+.shiny-input-container textarea::placeholder,
+.shiny-input-container input::placeholder {
+  color: var(--uu-mid-2);
+  font-style: italic;
+}
+
+/* Action buttons (Send Question, Send Feedback, etc.) */
+.btn-uucop,
+button.action-button,
+input.action-button {
+  background: var(--uu-crimson) !important;
+  color: var(--uu-paper) !important;
+  border: none !important;
+  padding: 10px 24px !important;
+  border-radius: 2px !important;
+  font-family: var(--uu-font-sans);
+  font-weight: 600;
+  font-size: 12.5px !important;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-uucop:hover,
+button.action-button:hover,
+input.action-button:hover {
+  background: var(--uu-crimson-deep) !important;
+}
+
+/* ─────────────────────────────────────────────
+   Small utility classes used in Rmd
+   ───────────────────────────────────────────── */
+.uu-eyebrow {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--uu-crimson);
+  margin: 0 0 6px;
+  display: block;
+}
+.uu-meta {
+  font-family: var(--uu-font-serif);
+  font-style: italic;
+  font-size: 14px;
+  color: var(--uu-mid);
+  margin: 0 0 18px;
+}
+
+/* ─────────────────────────────────────────────
+   Print: keep simple, not optimized
+   ───────────────────────────────────────────── */
+@media print {
+  #uucop-header, .topicsList, .topicsFooter { display: none !important; }
+  body { padding-top: 0 !important; background: white !important; }
+  .topics h2, .topics h3 { color: #000; }
+  .callout, .section-callout, .prestudy-prompt, .clinical-connection,
+  .model-check, .warning-callout, .callout--caution {
+    page-break-inside: avoid;
+  }
+}
+
+/* ---------- Figures ---------------------------------------------------- */
+/* Lifted lecture-slide figures and redrawn diagrams. Captions carry the
+   source and any scale caveat, so the caption is part of the component. */
+.tutorial-figure {
+  margin: 1.6rem 0;
+  padding: 1rem 1rem 0.75rem;
+  background: #fff;
+  border: 1px solid #e3e3e3;
+  border-radius: 6px;
+  text-align: center;
+}
+.tutorial-figure img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+}
+.tutorial-figure figcaption,
+.tutorial-figure .figure-caption {
+  margin-top: 0.75rem;
+  padding-top: 0.6rem;
+  border-top: 1px solid #efefef;
+  font-size: 0.86rem;
+  line-height: 1.45;
+  color: #555;
+  text-align: left;
+}
+.tutorial-figure .figure-caption strong { color: #8C1B2A; }
