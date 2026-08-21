@@ -299,13 +299,24 @@
       document.querySelectorAll('.topics > .section.level2'));
   }
 
+  // "Next: Primer" beats "Continue".
+  function nextLabel(sec) {
+    var h = sec.querySelector('h2');
+    var t = h ? h.textContent.trim() : '';
+    return t ? 'Next: ' + t : 'Continue';
+  }
+
   function showSection(id, push) {
     var all = sections();
     if (!all.length) return;
     var target = id && document.getElementById(id);
     if (!target || all.indexOf(target) === -1) target = all[0];
 
-    all.forEach(function (s) { s.classList.toggle('uucop-active', s === target); });
+    // `.current` is LEARNR'S OWN class: tutorial-format.css carries
+    // `.topics .section.level2 { display: none }` and
+    // `.topics .section.level2.current { display: block }`. Toggling it means
+    // the paging is done by the shipped stylesheet, not by a rule of ours.
+    all.forEach(function (s) { s.classList.toggle('current', s === target); });
 
     document.querySelectorAll('.topicsList .nav > li').forEach(function (li) {
       var a = li.querySelector('a');
@@ -326,16 +337,27 @@
   function addContinueButtons() {
     var all = sections();
     all.forEach(function (s, i) {
-      if (s.querySelector('.uucop-topic-actions')) return;
+      if (s.querySelector('.topicActions')) return;
+      // learnr's own .topicActions, so tutorial-format.css spaces it.
       var wrap = document.createElement('div');
-      wrap.className = 'uucop-topic-actions';
+      wrap.className = 'topicActions';
       var next = all[i + 1];
-      // .btn .btn-primary so uucop-tutorial.css styles it like every other
-      // control on the page; no new visual classes invented.
+
+      if (i > 0) {
+        var back = document.createElement('button');
+        back.type = 'button';
+        back.className = 'btn btn-default uucop-prev';
+        back.textContent = 'Back';
+        back.addEventListener('click', function () { showSection(all[i - 1].id, true); });
+        wrap.appendChild(back);
+      }
+
       var b = document.createElement('button');
       b.type = 'button';
-      b.className = 'btn btn-primary';
-      b.textContent = next ? 'Continue' : 'Back to start';
+      b.className = 'btn btn-primary uucop-next';
+      // Name the destination rather than saying "Continue" -- the reader can
+      // see where they are going, and it doubles as a section preview.
+      b.textContent = next ? nextLabel(next) : 'Back to the start';
       b.addEventListener('click', function () {
         showSection(next ? next.id : all[0].id, true);
       });
