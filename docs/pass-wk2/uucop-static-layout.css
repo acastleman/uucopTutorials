@@ -1,0 +1,101 @@
+/* uucop-static-layout.css — LAYOUT ONLY.
+ *
+ * learnr's own format CSS is linked from the learnr package at runtime and is
+ * never inlined into the prerendered .html (verified: the only <link> in it is
+ * to www/uucop-tutorial.css, and the three <style> blocks total ~1.2 KB). So a
+ * standalone page has no sidebar geometry and no section show/hide behaviour.
+ * This file supplies exactly that and nothing else.
+ *
+ * It sets NO colours, fonts, borders or spacing that uucop-tutorial.css owns.
+ * Everything visual still comes from the real stylesheet -- these are the rules
+ * that would otherwise come from learnr. Keep it that way: if a rule here would
+ * change how something LOOKS rather than where it sits, it belongs upstream.
+ */
+
+.uucop-shell {
+  display: grid;
+  grid-template-columns: 268px minmax(0, 1fr);
+  align-items: start;
+}
+
+/* EVERY child is placed explicitly. The shell holds more than the two columns:
+   pandoc emits a skip link, and uucop-tutorial.js injects its <header> as a
+   sibling of the content. Left to auto-placement those consume grid slots and
+   push .pageContent into the 268px column, where it renders full height but
+   narrow and underneath the rail -- a page that looks blank while every DOM
+   assertion still passes. */
+.uucop-shell > a.sr-only,
+.uucop-shell > header { grid-column: 1 / -1; grid-row: 1; }
+
+/* Sticky rail. uucop-tutorial.css already gives .topicsList its height,
+   background and right border; this only places and pins it. In learnr's DOM
+   `.topics` is the ARTICLE holding the sections, not the sidebar. */
+.uucop-shell > .topicsList {
+  grid-column: 1;
+  grid-row: 2;
+  position: sticky;
+  top: 64px;               /* clears the injected .uucop-header */
+  align-self: start;
+}
+
+/* learnr's own wrapper, already present in the prerendered html. */
+.uucop-shell > .pageContent {
+  grid-column: 2;
+  grid-row: 2;
+  min-width: 0;            /* lets wide tables scroll instead of stretching the grid */
+  padding-bottom: 6rem;
+}
+
+/* learnr's base CSS supplied these and is not in the standalone page. */
+.topicsList .nav { list-style: none; margin: 0; padding: 0; }
+.topicsList .nav > li > a { text-decoration: none; display: block; }
+
+/* Bootstrap's .sr-only. Without it pandoc's skip link renders as visible body
+   text at the top of the page. Still reachable by keyboard, which is its job. */
+.sr-only:not(:focus):not(:active),
+.visually-hidden-focusable:not(:focus):not(:active) {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Section paging. learnr shows one topic at a time; hidden is the default so a
+   student never sees all twelve stacked before the JS runs. */
+.topics > .section.level2 { display: none; }
+.topics > .section.level2.uucop-active { display: block; }
+
+/* Wide content must scroll inside itself, never widen the page. */
+.topics table { display: block; overflow-x: auto; max-width: 100%; }
+.topics img,
+.topics svg { max-width: 100%; height: auto; }
+
+/* Continue control at the foot of each section, mirroring learnr's topicActions.
+   Deliberately reuses .btn/.btn-primary so uucop-tutorial.css styles it. */
+.uucop-topic-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin: 34px 20px 0;
+}
+
+.topicsList .nav > li > a { cursor: pointer; }
+
+/* Keyboard focus must stay visible -- the rail is a primary navigation. */
+.topicsList .nav > li > a:focus-visible,
+.uucop-topic-actions .btn:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }
+
+@media (max-width: 860px) {
+  .uucop-shell { grid-template-columns: minmax(0, 1fr); }
+  /* Rail becomes a scrolling strip above the content rather than a column. */
+  .uucop-shell > .topicsList { grid-column: 1; grid-row: 2; position: static; }
+  .uucop-shell > .pageContent { grid-column: 1; grid-row: 3; }
+  .topicsList {
+    height: auto !important;
+    max-height: 42vh !important;
+    overflow-y: auto;
+  }
+}
